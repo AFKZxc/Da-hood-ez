@@ -1,0 +1,615 @@
+
+local Library = loadstring(game:HttpGet("https://pastebin.com/raw/kpLzpNXc"))()
+
+local Window = Library:CreateWindow("Aura X Remake", Vector2.new(300, 300), Enum.KeyCode.V)
+local AkaliNotif =
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Kinlei/Dynissimo/main/Scripts/AkaliNotif.lua"))()
+
+local Notify = AkaliNotif.Notify
+
+getgenv().Target = true
+
+getgenv().Prediction = 0.1359992938
+
+getgenv().ChatMode = false
+
+getgenv().NotifMode = true
+
+getgenv().PartMode = true
+
+getgenv().Partz = "HumanoidRootPart"
+
+getgenv().AutoPrediction = true
+
+getgenv().JumpOffset = 0
+
+getgenv().Highlights = false
+
+getgenv().Outline = Color3.fromRGB(251, 255, 255)
+
+getgenv().Fill = Color3.fromRGB(251, 255, 255)
+
+getgenv().TargetStrafe = false
+
+getgenv().StrafeSpeed = 10
+
+getgenv().StrafeRadius = 8
+
+getgenv().StrafeHeight = 2
+
+getgenv().LookAt = false
+
+getgenv().ViewAt = false
+
+getgenv().AirshotFunccc = false
+
+getgenv().AirshotPart = "LowerTorso"
+
+getgenv().UseCam = true
+
+getgenv().Resolver = false
+
+--
+
+local Tool = Instance.new("Tool")
+
+Tool.RequiresHandle = false
+
+Tool.Name = "im Icys dog"
+
+Tool.Parent = game.Players.LocalPlayer.Backpack
+
+local player = game.Players.LocalPlayer
+
+local function connectCharacterAdded()
+    player.CharacterAdded:Connect(onCharacterAdded)
+end
+
+connectCharacterAdded()
+
+player.CharacterRemoving:Connect(
+    function()
+        Tool.Parent = game.Players.LocalPlayer.Backpack
+    end
+)
+
+_G.Types = {
+    Ball = Enum.PartType.Ball,
+    Block = Enum.PartType.Block,
+    Cylinder = Enum.PartType.Cylinder
+}
+
+--variables
+
+local Tracer = Instance.new("Part", game.Workspace)
+
+Tracer.Name = "Thunder God Haalfi"
+
+Tracer.Anchored = true
+
+Tracer.CanCollide = false
+
+Tracer.Transparency = 0.3
+
+Tracer.Parent = game.Workspace
+
+Tracer.Shape = _G.Types.Ball
+
+Tracer.Material = Enum.Material.ForceField
+
+Tracer.Size = Vector3.new(11, 11, 11)
+
+Tracer.Color = Color3.fromRGB(251, 255, 255)
+
+--
+
+local plr = game.Players.LocalPlayer
+
+local mouse = plr:GetMouse()
+
+local Inset = game:GetService("GuiService"):GetGuiInset().Y
+
+local Runserv = game:GetService("RunService")
+
+circle = Drawing.new("Circle")
+
+circle.Color = Color3.fromRGB(32, 28, 52)
+
+circle.Thickness = 0
+
+circle.NumSides = 25
+
+circle.Radius = 120
+
+circle.Thickness = 0
+
+circle.Transparency = 0.7
+
+circle.Visible = false
+
+circle.Filled = false
+
+Runserv.RenderStepped:Connect(
+    function()
+        circle.Position = Vector2.new(mouse.X, mouse.Y + 35)
+    end
+)
+
+local guimain = Instance.new("Folder", game.CoreGui)
+
+local CC = game:GetService "Workspace".CurrentCamera
+
+local LocalMouse = game.Players.LocalPlayer:GetMouse()
+
+local Locking = false
+
+--
+
+if getgenv().valiansh == true then
+    game.StarterGui:SetCore(
+        "SendNotification",
+        {
+            Title = "Made By Xarcax",
+            Text = "Already Loaded!",
+            Duration = 5
+        }
+    )
+
+    return
+end
+
+getgenv().valiansh = true
+
+local LocalHL = Instance.new("Highlight")
+
+Tool.Activated:Connect(
+    function()
+        if getgenv().Target == true then
+            Locking = not Locking
+
+            if Locking then
+                Plr = getClosestPlayerToCursor()
+
+                if getgenv().Highlights == true then
+                    LocalHL.Parent = Plr.Character
+
+                    LocalHL.FillColor = getgenv().Fill
+
+                    LocalHL.OutlineColor = getgenv().Outline
+                else
+                    LocalHL.Parent = game.CoreGui
+                end
+
+                if getgenv().ChatMode then
+                    local A_1 = "Locked To: " .. tostring(Plr.Character.Humanoid.DisplayName)
+                    local A_2 = "All"
+                    local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+                    Event:FireServer(A_1, A_2)
+                end
+
+                if getgenv().NotifMode then
+                    Notify(
+                        {
+                            Description = "Locked To: " .. tostring(Plr.Character.Humanoid.DisplayName),
+                            Title = "",
+                            Duration = 5
+                        }
+                    )
+                end
+            elseif not Locking then
+                if getgenv().ChatMode then
+                    local A_1 = "Unlocked"
+                    local A_2 = "All"
+                    local Event = game:GetService("ReplicatedStorage").DefaultChatSystemChatEvents.SayMessageRequest
+                    Event:FireServer(A_1, A_2)
+                end
+
+                if getgenv().Higlights == true then
+                    LocalHL.Parent = game.CoreGui
+                end
+
+                if getgenv().NotifMode then
+                    Notify(
+                        {
+                            Description = "Unlocked",
+                            Title = "Aura X (Xarcax)",
+                            Duration = 5
+                        }
+                    )
+                elseif getgenv().Target == false then
+                    Notify(
+                        {
+                            Description = "Target isn't enabled",
+                            Title = "Aura X (Xarcax)",
+                            Duration = 5
+                        }
+                    )
+                end
+            end
+        end
+    end
+)
+
+function getClosestPlayerToCursor()
+    local closestPlayer
+
+    local shortestDistance = circle.Radius
+
+    for i, v in pairs(game.Players:GetPlayers()) do
+        if
+            v ~= game.Players.LocalPlayer and v.Character and v.Character:FindFirstChild("Humanoid") and
+                v.Character.Humanoid.Health ~= 0 and
+                v.Character:FindFirstChild("LowerTorso")
+         then
+            local pos = CC:WorldToViewportPoint(v.Character.PrimaryPart.Position)
+
+            local magnitude = (Vector2.new(pos.X, pos.Y) - Vector2.new(LocalMouse.X, LocalMouse.Y)).magnitude
+
+            if magnitude < shortestDistance then
+                closestPlayer = v
+
+                shortestDistance = magnitude
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+--
+
+if getgenv().PartMode then
+    game:GetService "RunService".Stepped:connect(
+        function()
+            if Locking and Plr.Character and Plr.Character:FindFirstChild("LowerTorso") then
+                Tracer.CFrame =
+                    CFrame.new(Plr.Character.LowerTorso.Position + (Plr.Character.LowerTorso.Velocity * Prediction))
+            else
+                Tracer.CFrame = CFrame.new(0, 9999, 0)
+            end
+        end
+    )
+end
+
+if getgenv().AirshotFunccc == true then
+    if Plr.Character.Humanoid.Jump == true and Plr.Character.Humanoid.FloorMaterial == Enum.Material.Air then
+        getgenv().Partz = getgenv().AirshotPart
+    else
+        Plr.Character:WaitForChild("Humanoid").StateChanged:Connect(
+            function(old, new)
+                if new == Enum.HumanoidStateType.Freefall then
+                    getgenv().Partz = getgenv().AirshotPart
+                else
+                    getgenv().Partz = getgenv().Partz
+                end
+            end
+        )
+    end
+end
+
+local JumpOffsetNoWay = 0
+
+game:GetService("RunService").Stepped:connect(
+    function()
+        if Locking and Plr and Plr.Character and Plr.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall then
+            getgenv().JumpOffset = JumpOffsetNoWay
+        else
+            getgenv().JumpOffset = 0
+        end
+
+        if getgenv().LookAt == true and Locking then
+            local sex = game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.CFrame
+
+            local Char = game.Players.LocalPlayer.Character
+
+            local PrimaryPartOfChar = game.Players.LocalPlayer.Character.PrimaryPart
+
+            local NearestChar = Plr.Character
+
+            local NearestRoot = Plr.Character.HumanoidRootPart
+
+            local NearestPos =
+                CFrame.new(
+                PrimaryPartOfChar.Position,
+                Vector3.new(NearestRoot.Position.X, sex.Position.Y, NearestRoot.Position.Z)
+            )
+
+            Char:SetPrimaryPartCFrame(NearestPos)
+        end
+
+        if getgenv().TargetStrafe == true and Locking then
+            local lp = game.Players.LocalPlayer.Character
+
+            local targpos = Plr.Character.HumanoidRootPart.Position
+
+            lp:SetPrimaryPartCFrame(
+                CFrame.new(
+                    targpos +
+                        Vector3.new(
+                            math.cos(tick() * getgenv().StrafeSpeed) * getgenv().StrafeRadius,
+                            getgenv().StrafeHeight,
+                            math.sin(tick() * getgenv().StrafeSpeed) * getgenv().StrafeRadius
+                        )
+                )
+            )
+
+            game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame =
+                CFrame.new(
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Position,
+                Vector3.new(targpos.X, game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame.Position.Y, targpos.Z)
+            )
+
+            game:GetService("Players").LocalPlayer.Character.Humanoid.AutoRotate = false
+        else
+            game:GetService("Players").LocalPlayer.Character.Humanoid.AutoRotate = true
+        end
+    end
+)
+
+function calculateVelocity(initialPos, finalPos, timeInterval)
+    local displacement = finalPos - initialPos
+
+    local velocity = displacement / timeInterval
+
+    return velocity
+end
+
+game:GetService("RunService").RenderStepped:connect(
+    function(deltaTime)
+        if getgenv().Resolver == true and Locking then
+            local character = Plr.Character.HumanoidRootPart
+
+            local lastPosition = character.Position
+
+            task.wait()
+
+            local currentPosition = character.Position
+
+            local velocity = calculateVelocity(lastPosition, currentPosition, deltaTime)
+
+            character.AssemblyLinearVelocity = velocity
+
+            character.Velocity = velocity
+
+            lastPosition = currentPosition
+        end
+    end
+)
+
+game:GetService("RunService").RenderStepped:Connect(
+    function()
+        if Locking and Plr ~= nil and getgenv().UseCam == true then
+            CC.CFrame = CFrame.new(CC.CFrame.Position, Tracer.CFrame.Position)
+        end
+
+        if getgenv().ViewAt == true and Locking then
+            CC.CameraSubject = Plr.Character
+        else
+            CC.CameraSubject = game.Players.LocalPlayer.Character
+        end
+    end
+)
+
+local AimingTab = Window:CreateTab("Main")
+local MiscTab = Window:CreateTab("Misc")
+
+local testSection = AimingTab:CreateSector("Aimlock", "left") --you can  change the section code, for example "testsection" can be changed to "FunnyCoolSection" etc.
+
+testSection:AddTextbox(
+    "Prediction",
+    0.135,
+    function(State)
+        getgenv().Prediction = State
+    end
+)
+
+testSection:AddTextbox(
+    "Jump Offset",
+    0.06,
+    function(State)
+        JumpOffsetNoWay = State
+    end
+)
+
+testSection:AddDropdown(
+    "HitPart",
+    {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "Penis"},
+    "HumanoidRootPart",
+    false,
+    function(Option)
+        getgenv().Partz = "Option"
+    end
+)
+
+testSection:AddToggle(
+    "Look At",
+    false,
+    function(first)
+        getgenv().LookAt = first
+    end
+)
+
+testSection:AddToggle(
+    "View At",
+    false,
+    function(first)
+        getgenv().ViewAt = first
+    end
+)
+
+testSection:AddToggle(
+    "Use Camlock",
+    false,
+    function(first)
+        getgenv().UseCam = first
+    end
+)
+
+testSection:AddToggle(
+    "Resolver",
+    false,
+    function(first)
+        getgenv().Resolver = first
+    end
+)
+
+testSection:AddToggle(
+    "Airshot Function",
+    false,
+    function(first)
+        getgenv().AirshotFunccc = first
+    end
+)
+
+testSection:AddToggle(
+    "Auto Prediction",
+    false,
+    function(first)
+        getgenv().AutoPrediction = first
+    end
+)
+
+local ColorToggle =
+    testSection:AddToggle(
+    "Highlight Target",
+    false,
+    function(gay)
+        getgenv().Highlights = gay
+    end
+)
+
+ColorToggle:AddColorpicker(
+    Color3.fromRGB(251, 255, 255),
+    function(ztx)
+        getgenv().Fill = ztx
+    end
+)
+
+ColorToggle:AddColorpicker(
+    Color3.fromRGB(128, 128, 128),
+    function(ztx)
+        getgenv().Outline = ztx
+    end
+)
+
+local testSection = AimingTab:CreateSector("FOV", "left") --you can  change the section code, for example "testsection" can be changed to "FunnyCoolSection" etc.
+
+testSection:AddToggle(
+    "Use FOV",
+    false,
+    function(first)
+        circle.Visible = first
+    end
+)
+
+testSection:AddToggle(
+    "FOV Filled",
+    false,
+    function(first)
+        circle.Filled = first
+    end
+)
+
+testSection:AddTextbox(
+    "FOV Size",
+    circle.Radius,
+    function(State)
+        circle.Radius = State
+    end
+)
+
+local testSection = AimingTab:CreateSector("Orbit", "left") --you can  change the section code, for example "testsection" can be changed to "FunnyCoolSection" etc.
+
+testSection:AddToggle(
+    "Enabled",
+    false,
+    function(first)
+        getgenv().TargetStrafe = first
+    end
+)
+
+testSection:AddTextbox(
+    "Distance",
+    nil,
+    function(State)
+        getgenv().StrafeRadius = State
+    end
+)
+
+testSection:AddTextbox(
+    "Height",
+    nil,
+    function(State)
+        getgenv().StrafeHeight = State
+    end
+)
+
+testSection:AddTextbox(
+    "Speed",
+    nil,
+    function(State)
+        getgenv().StrafeSpeed = State
+    end
+)
+
+local rawmetatable = getrawmetatable(game)
+
+local old = rawmetatable.__namecall
+
+setreadonly(rawmetatable, false)
+
+rawmetatable.__namecall =
+    newcclosure(
+    function(...)
+        local args = {...}
+          local RapeMeDaddy = {"UpdateMousePos", "GetMousePos", "MousePos"}
+
+        if Locking and getnamecallmethod() == "FireServer" and table.find(RapeMeDaddy, args[2]) then
+            args[3] =
+                Plr.Character[getgenv().Partz].Position + Vector3.new(0, getgenv().JumpOffset, 0) +
+                (Plr.Character[getgenv().Partz].Velocity * Prediction)
+
+            return old(unpack(args))
+        end
+
+        return old(...)
+    end
+)
+
+while wait() do
+    if getgenv().AutoPrediction == true then
+        local pingvalue = game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValueString()
+
+        local split = string.split(pingvalue, "(")
+
+        local ping = tonumber(split[1])
+
+        if ping < 220 then
+            getgenv().Prediction = 0.165566
+        elseif ping < 150 then
+            getgenv().Prediction = 0.15873582
+        elseif ping < 140 then
+            getgenv().Prediction = 0.15382643
+        elseif ping < 130 then
+            getgenv().Prediction = 0.153456211988654432687543768432763246831111
+        elseif ping < 125 then
+            getgenv().Prediction = 0.1482
+        elseif ping < 110 then
+            getgenv().Prediction = 0.14378
+        elseif ping < 105 then
+            getgenv().Prediction = 0.14484357
+        elseif ping < 90 then
+            getgenv().Prediction = 0.13873952
+        elseif ping < 80 then
+            getgenv().Prediction = 0.13581963
+        elseif ping < 70 then
+            getgenv().Prediction = 0.12862974
+        elseif ping < 60 then
+            getgenv().Prediction = 0.12671983
+        elseif ping < 50 then
+            getgenv().Prediction = 0.1368384
+        elseif ping < 40 then
+            getgenv().Prediction = 0.1314356
+        end
+    end
+end
