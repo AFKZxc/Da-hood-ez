@@ -1,0 +1,1017 @@
+local Settings = {
+    BulletAssist = {
+        Enabled = true, -- // Enabled or Disable Bullet Assist
+        UsePrediction = true, -- // Uses Prediction
+        Prediction = 0.13, -- // Bullet Prediction
+        Visualization = true, -- // Shows dot on player/part you are locked onto.
+        ClosestPart = true, -- // Hits closest part to cursor, disable this if you want to use TargetPart
+        Resolver = false,
+        HitChance = 100, -- // Chance that the bullet will hit the player.
+        Selected = nil, -- // Don't touch this if you don't know what you're doing.
+        SelectedPart = nil, -- // Don't touch this if you don't know what you're doing.
+        TargetPart = {"Head", "HumanoidRootPart"}, -- // Part you want to hit {I suggest using Closest Part}
+    },
+    FOVSettings = {
+        Visible = false, -- // If FOV Is Visible.
+        Filled = false, -- // Filled FOV {Use Transparency if you are going to use this}
+        FOV = 40, -- // Increases size of FOV.
+        Sides = 300, -- // Don't touch this if you don't know what you're doing.
+        Color = Color3.fromRGB(0, 0, 139), -- Don't touch this if you don't know what you're doing.
+        Thickness = 2, -- // Increases Thickness of FOV Circle.
+        Transparency = 1, -- // Use decimals to increase Transparency. {Example: 0.5}
+    },
+    AimAssist = {
+        Enabled = true, -- // Enabled or Disable Aim Assist
+        Prediction = 0.135, -- // AimAssist Prediction
+        Target_Bind = Enum.KeyCode.Q, -- // Target Bind for non universal games {Da Hood, Etc}
+        UniversalTargetBind = Enum.KeyCode.X, -- // Universal Keybind {Example: Bot Trainers/Aim Trainers}
+        HitPart = "Nearest", 
+        Smoothing = {
+            X_Axis = {
+                SmoothingAmount = 0.020, -- // 0.020 for Best Aim
+            },
+            Y_Axis = {
+                SmoothingAmount = 0.020, -- // 0.020 for Best Aim
+            },
+        },
+    },
+    LagSpike = {
+        Enabled = true, -- // Makes you Lag Spike {Used for Star Tryouts}
+        Keybind = Enum.KeyCode.T,-- // Bind for Lag Spike.
+        RepeatedLag = 2, -- // Don't touch this if you don't know what you're doing.
+    },
+}
+    getgenv().GunSettings = {
+        ["Double-Barrel SG"] = { -- Da Hood
+            ["FOV"] = 30,
+    },
+        ["Double Barrel SG"] = { -- DHM
+            ["FOV"] = 30,
+    },
+        ["DoubleBarrel"] = { -- Hood Customs
+            ["FOV"] = 30,
+    },
+        ["Revolver"] = {
+            ["FOV"] = 20,
+    },
+        ["SMG"] = {
+            ["FOV"] = 30,
+    },
+        ["Shotgun"] = {
+            ["FOV"] = 30,
+    },
+        ["TacticalShotgun"] = {
+            ["FOV"] = 30,
+    },
+}
+    getgenv().Memory = {
+        Start = 780, -- // Memory Spoofer won't go lower than this number.
+        End = 1020, -- // Memory Spoofer won't go above this number.
+}
+
+getgenv().Settings = Settings
+
+local Memory
+game:GetService("RunService").RenderStepped:Connect(function()
+    pcall(function()
+        for i,v in pairs(game:GetService("CoreGui").RobloxGui.PerformanceStats:GetChildren()) do
+            if v.Name == "PS_Button" then
+                if v.StatsMiniTextPanelClass.TitleLabel.Text == "Mem" then
+                    v.StatsMiniTextPanelClass.ValueLabel.Text = tostring(Memory) ..  " MB"
+                end
+            end
+        end
+    end)
+    pcall(function()
+        if game:GetService("CoreGui").RobloxGui.PerformanceStats["PS_Viewer"].Frame.TextLabel.Text == "Memory" then
+            for i,v in pairs(game:GetService("CoreGui").RobloxGui.PerformanceStats["PS_Viewer"].Frame:GetChildren()) do
+               if v.Name == "PS_DecoratedValueLabel" and string.find(v.Label.Text, 'Current') then
+                 v.Label.Text = "Current: " .. Memory .. " MB"
+               end
+               if v.Name == "PS_DecoratedValueLabel" and string.find(v.Label.Text, 'Average') then
+                 v.Label.Text = "Average: " .. Memory .. " MB"
+               end
+            end
+        end
+    end)
+    pcall(function()
+        game:GetService("CoreGui").DevConsoleMaster.DevConsoleWindow.DevConsoleUI.TopBar.LiveStatsModule["MemoryUsage_MB"].Text = math.round(tonumber(Memory)) .. " MB"
+    end)
+end)
+Memory = tostring(math.random(getgenv().Memory.Start, getgenv().Memory.End)) .. "." .. tostring(math.random(10, 99))
+task.spawn(function()
+    while task.wait(getgenv().Memory.Speed) do
+        spike = math.random(-getgenv().Memory.SpikeChance,getgenv().Memory.SpikeChance)
+            Memory = tostring(math.random(getgenv().Memory.Start, getgenv().Memory.End)) .. "." .. tostring(math.random(10, 99))
+                if spike == 1 and getgenv().Memory.Spike then 
+                    Memory = tostring(math.random(1000, 1100)) .. "." .. tostring(math.random(10, 99))
+                end
+        end
+end)
+-- Loader
+
+local load = false
+
+--[[
+game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+    if input.KeyCode == Enum.KeyCode.J and not processed then
+        load = true
+    end
+end)
+]]
+
+load = true
+
+repeat wait() until game:IsLoaded() and load
+
+--[[
+for _,v in pairs(getconnections(game:GetService("ScriptContext").Error)) do
+    v:Disable()
+end
+for _,v in pairs(getconnections(game:GetService("LogService").MessageOut)) do
+    v:Disable()
+end
+]]
+
+local SupportedGames = {
+    [1958807588] = {
+      Name = "Hood Modded",
+      MouseArguments = "MousePos",
+      Functions = {
+         GetKOValue = function(player)
+            return player.Character["I_LOADED_I"]["K.O"].Value
+         end
+      },
+      CustomSettings = {
+        NeedsPrediction = true,
+        AnarchyFix = false,
+        ArsenalFix = false,
+        PhantomForcesFix = false,
+        HeadShot = false,
+        BotAimTrain = false,
+      },
+      SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [1008451066] = {
+        Name = "Da Hood",
+        MouseArguments = "UpdateMousePos",
+        Functions = {
+            GetKOValue = function(player)
+               return player.Character.BodyEffects["K.O"].Value
+            end
+         },
+         CustomSettings = {
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+         },
+         SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [3953740961] = {
+        Name = "Dat Hood",
+        MouseArguments = "UpdateMousePos",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+         },
+         CustomSettings = {
+            NeedsPrediction = true,
+         },
+         SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [1590803567] = {
+        Name = "The Hood",
+        MouseArguments = "MousePosDEBUG",
+        Functions = {
+            GetKOValue = function(player)
+               return player.BodyEffects["knocked"].Value
+            end
+         },
+         CustomSettings = {
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+         },
+         SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [3445639790] = {
+        Name = "Untitled Hood",
+        MouseArguments = "UpdateMousePos",
+        Functions = {
+            GetKOValue = function(player)
+               return player.BodyEffects["K.O"].Value
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [3682454970] = {
+        Name = "n the hood",
+        MouseArguments = "UpdateMousePos",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [9824221333] = {
+        Name = "Da Hood Aim Trainer",
+        MouseArguments = "UpdateMousePos",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [3634139746] = {
+        Name = "Hood Customs",
+        MouseArguments = "GetMousePos",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {z
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "MouseArguments", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },   
+    [2095876940] = {
+        Name = "Anarchy",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = true,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "Mouse.Hit/Target", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },   
+    [254394801] = {
+        Name = "KAT",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = false,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "FindPartOnRayWithIgnoreList", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    }, 
+    [2540872233] = {
+        Name = "Pistol 1V1",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = false,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "Raycast", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },   
+    [113491250] = {
+        Name = "Phantom-Forces",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = false,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = true,
+            HeadShot = true,
+            BotAimTrain = false,
+        },
+        SilentAimMethod = "CUSTOM", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [452761266] = {
+        Name = "Bot aim training",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = false,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = true,
+        },
+        SilentAimMethod = "CUSTOM", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [2250715196] = {
+        Name = "Aim Trainer",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = false,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+            AimTrainer = true,
+        },
+        SilentAimMethod = "CUSTOM", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+    [3782171024] = {
+        Name = "Da Hood Trainer",
+        MouseArguments = "NONE",
+        Functions = {
+            GetKOValue = function(player)
+               return false
+            end
+        },
+        CustomSettings = {
+            NeedsPrediction = false,
+            AnarchyFix = false,
+            ArsenalFix = false,
+            PhantomForcesFix = false,
+            HeadShot = false,
+            BotAimTrain = false,
+            AimTrainer = false,
+            DHT = true
+        },
+        SilentAimMethod = "CUSTOM", -- MouseArguments, Raycast, FindPartOnRay, FindPartOnRayWithWhitelist, FindPartOnRayWithIgnoreList, Mouse.Hit/Target
+    },
+}
+
+--// services \\--
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local GuiService = game:GetService("GuiService")
+local RunService = game:GetService("RunService")
+local GuiService = game:GetService("GuiService")
+
+--// locals \\--
+local SelectedPart
+local Mouse = game.Players.LocalPlayer:GetMouse()
+local GetGuiInset = GuiService.GetGuiInset
+local LocalPlayer = Players.LocalPlayer
+local player = Players.LocalPlayer
+local Player = Players.LocalPlayer
+local CurrentCamera = Workspace.CurrentCamera
+local Camera = Workspace.CurrentCamera
+local cc = Workspace.CurrentCamera
+local WorldToViewportPoint = CurrentCamera.WorldToViewportPoint
+local Raycast = Workspace.Raycast
+local GetPlayers = Players.GetPlayers
+local Instancenew = Instance.new
+local FindFirstChildWhichIsA = Instancenew("Part").FindFirstChildWhichIsA
+local FindFirstChild = Instancenew("Part").FindFirstChild
+local BotToggled = false
+local BotToggled2 = false
+local PartBotToggled = false
+
+local ScriptInformation = {
+    Selected = nil,
+}
+
+local ExpectedArguments = {
+    FindPartOnRayWithIgnoreList = {
+        ArgCountRequired = 3,
+        Args = {
+            "Instance", "Ray", "table", "boolean", "boolean"
+        }
+    },
+    FindPartOnRayWithWhitelist = {
+        ArgCountRequired = 3,
+        Args = {
+            "Instance", "Ray", "table", "boolean"
+        }
+    },
+    FindPartOnRay = {
+        ArgCountRequired = 2,
+        Args = {
+            "Instance", "Ray", "Instance", "boolean", "boolean"
+        }
+    },
+    Raycast = {
+        ArgCountRequired = 3,
+        Args = {
+            "Instance", "Vector3", "Vector3", "RaycastParams"
+        }
+    }
+}
+
+local Script = {Functions = {}}
+
+local CurrentGame = 0
+
+if SupportedGames[game.GameId] then
+    CurrentGame = SupportedGames[game.GameId]
+else
+    return;
+end
+
+local circle = Drawing.new("Circle")
+circle.Transparency = Settings.FOVSettings.Transparency
+circle.Thickness = Settings.FOVSettings.Thickness
+circle.Color = Settings.FOVSettings.Color
+circle.Filled = Settings.FOVSettings.Filled
+local FOVCircle = circle
+
+local Visualization = Drawing.new("Circle")
+Visualization.Visible = false
+Visualization.Radius = 7
+Visualization.Filled = true
+Visualization.Color = Color3.fromRGB(0, 0, 139)
+Visualization.Thickness = 1
+Visualization.Transparency = 1
+
+local function IsOnScreen(Object)
+    local IsOnScreen = game.Workspace.CurrentCamera:WorldToScreenPoint(Object.Position)
+    return IsOnScreen
+end
+
+local function Filter(Object)
+    if string.find(Object.Name, "Gun") then
+        return
+    end
+    if Object:IsA("Part") or Object:IsA("MeshPart") then
+        return true
+    end
+end
+
+local function WTSPos(Position)
+    local ObjectVector = game.Workspace.CurrentCamera:WorldToScreenPoint(Position)
+    return Vector2.new(ObjectVector.X, ObjectVector.Y)
+end
+
+local function WTS(Object)
+    local ObjectVector = game.Workspace.CurrentCamera:WorldToScreenPoint(Object.Position)
+    return Vector2.new(ObjectVector.X, ObjectVector.Y)
+end
+
+local function ValidateArguments(Args, RayMethod)
+    local Matches = 0
+    if #Args < RayMethod.ArgCountRequired then
+        return false
+    end
+    for Pos, Argument in next, Args do
+        if typeof(Argument) == RayMethod.Args[Pos] then
+            Matches = Matches + 1
+        end
+    end
+    return Matches >= RayMethod.ArgCountRequired
+end
+
+local function getDirection(Origin, Position)
+    return (Position - Origin).Unit * 1000
+end
+
+Script.Functions.CheckPlayer = function(player)
+    if (player.Character) and player.Character:FindFirstChildWhichIsA("Humanoid") and player.Character:FindFirstChild("HumanoidRootPart") then
+        return true
+    end
+    return false
+end
+
+Script.Functions.IsVisible = function(Position, Ignore)
+    return #workspace.CurrentCamera:GetPartsObscuringTarget({game.Players.LocalPlayer.Character.Head.Position, Position}, Ignore) == 0 and true or false
+end
+
+Script.Functions.UpdateFOV = function() 
+    if CurrentGame ~= 0 then
+        if not (circle) then
+            return
+        end
+        circle.Visible = Settings.FOVSettings.Visible
+        circle.Radius = (Settings.FOVSettings.FOV * 3)
+        circle.Position = Vector2.new(Mouse.X, Mouse.Y + GetGuiInset(GuiService).Y)
+        circle.NumSides = Settings.FOVSettings.Sides
+        circle.Color = Settings.FOVSettings.Color
+        return circle
+    end
+end
+
+Script.Functions.CalcChance = function(percentage)
+    percentage = math.floor(percentage)
+    local chance = math.floor(Random.new().NextNumber(Random.new(), 0, 1) * 100) / 100
+    return chance <= percentage / 100
+end
+
+Script.Functions.Character = function(Player)
+    return Player.Character
+end
+
+Script.Functions.CheckHealth = function(Player)
+    local Character = Script.Functions.Character(Player)
+    local Humanoid = FindFirstChildWhichIsA(Character, "Humanoid")
+    local Health = (Humanoid and Humanoid.Health or 0)
+    return Health > 0
+end
+
+Script.Functions.GetClosestTargetPartToCursor = function(Character)
+    local TargetParts = Settings.BulletAssist.TargetPart
+    local ClosestPart = nil
+    local ClosestPartPosition = nil
+    local ClosestPartOnScreen = false
+    local ClosestPartMagnitudeFromMouse = nil
+    local ShortestDistance = 1/0
+
+    local function CheckTargetPart(TargetPart)
+        if (typeof(TargetPart) == "string") then
+            TargetPart = FindFirstChild(Character, TargetPart)
+        end
+        if not (TargetPart) then
+            return
+        end
+        local PartPos, onScreen = WorldToViewportPoint(CurrentCamera, TargetPart.Position)
+        local GuiInset = GetGuiInset(GuiService)
+        local Magnitude = (Vector2.new(PartPos.X, PartPos.Y - GuiInset.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+        if (Magnitude < ShortestDistance) then
+            ClosestPart = TargetPart
+            ClosestPartPosition = PartPos
+            ClosestPartOnScreen = onScreen
+            ClosestPartMagnitudeFromMouse = Magnitude
+            ShortestDistance = Magnitude
+        end
+    end
+    if (typeof(TargetParts) == "string") then
+        if (TargetParts == "All") then
+            for _, v in ipairs(Character:GetChildren()) do
+                if not (v:IsA("BasePart")) then
+                    continue
+                end
+                CheckTargetPart(v)
+            end
+        else
+            CheckTargetPart(TargetParts)
+        end
+    end
+    if (typeof(TargetParts) == "table") then
+        for _, TargetPartName in ipairs(TargetParts) do
+            CheckTargetPart(TargetPartName)
+        end
+    end
+    return ClosestPart, ClosestPartPosition, ClosestPartOnScreen, ClosestPartMagnitudeFromMouse
+end
+
+Script.Functions.GetClosestPlayer = function()
+    local ClosestPlayer = nil
+    local Chance = Script.Functions.CalcChance(Settings.BulletAssist.HitChance)
+    local ShortestDistance = 1/0
+    if (not Chance) then
+        Settings.BulletAssist.Selected = LocalPlayer
+        return LocalPlayer
+    end
+    for _, Player in ipairs(GetPlayers(Players)) do
+        local Character = Script.Functions.Character(Player)
+        if (Character) then
+            local TargetPartTemp, _, _, Magnitude = Script.Functions.GetClosestTargetPartToCursor(Character)
+            if (TargetPartTemp and Script.Functions.CheckHealth(Player)) then
+                if (circle.Radius > Magnitude and Magnitude < ShortestDistance) then
+                    if Script.Functions.IsVisible(Player.Character.Head.Position, {Player.Character, game.Players.LocalPlayer.Character, workspace.CurrentCamera}) then
+                        ClosestPlayer = Player
+                        ShortestDistance = Magnitude
+                    end
+                end
+            end
+        end
+    end
+
+    Settings.BulletAssist.Selected = ClosestPlayer
+end
+
+Script.Functions.GetClosestPlayerMulitple = function()
+    local Target = nil
+    local Distance = math.huge
+    local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
+    
+    for i, v in next, game:GetService("Players"):GetPlayers() do
+        if v ~= game:GetService("Players").LocalPlayer and Script.Functions.CheckPlayer(game:GetService("Players").LocalPlayer) and Script.Functions.CheckPlayer(v) then
+            local RootPosition, RootVisible = workspace.CurrentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+
+            local MouseDis = (Vector2.new(RootPosition.X, RootPosition.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+            if (circle.Radius * 2 > MouseDis and MouseDis < Distance) then
+                if RootVisible and Distance > MouseDis then
+                    if Script.Functions.IsVisible(v.Character.Head.Position, {v.Character, game.Players.LocalPlayer.Character, workspace.CurrentCamera}) then
+                        Target = v
+                        Distance = MouseDis
+                    end
+                end
+            end 
+        end
+    end
+
+    return Target
+end
+
+Script.Functions.GetNearestPartToCursorOnCharacter = function(character)
+    local ClosestDistance = math.huge
+    local BodyPart = nil
+
+    if (character and character:GetChildren()) then
+        for k,  x in next, character:GetChildren() do
+            if Filter(x) and IsOnScreen(x) then
+                local Distance = (WTS(x) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+    
+                if Distance < ClosestDistance then
+                    ClosestDistance = Distance
+                    BodyPart = x
+                end
+            end
+        end
+    end
+
+    return BodyPart
+end
+
+Script.Functions.GetClosestPlayerMulitple = function()
+    local Target = nil
+    local Distance = math.huge
+    local Mouse = game:GetService("Players").LocalPlayer:GetMouse()
+    
+    for i, v in next, game:GetService("Players"):GetPlayers() do
+        if v ~= game:GetService("Players").LocalPlayer and Script.Functions.CheckPlayer(game:GetService("Players").LocalPlayer) and Script.Functions.CheckPlayer(v) then
+            local RootPosition, RootVisible = workspace.CurrentCamera:WorldToViewportPoint(v.Character.HumanoidRootPart.Position)
+
+            local MouseDis = (Vector2.new(RootPosition.X, RootPosition.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+            if (circle.Radius * 2 > MouseDis and MouseDis < Distance) then
+                if RootVisible and Distance > MouseDis then
+                    if Script.Functions.IsVisible(v.Character.Head.Position, {v.Character, game.Players.LocalPlayer.Character, workspace.CurrentCamera}) then
+                        Target = v
+                        Distance = MouseDis
+                    end
+                end
+            end 
+        end
+    end
+
+    return Target
+end
+
+Script.Functions.GetNearestBotPart = function()
+    local Part
+    local Distance = math.huge 
+    for c,k in next, game:GetService("Workspace").Bots:GetChildren() do 
+        if (k.Name == 'Newbot' and k:FindFirstChild('Humanoid')) then
+            local Health = k.Humanoid.Health 
+            local ScreenPosition, ScreenVisible = Camera:WorldToScreenPoint(k:FindFirstChild("HumanoidRootPart").Position)
+            local Mag = (Vector2.new(Mouse.X,Mouse.Y) - Vector2.new(ScreenPosition.X,ScreenPosition.Y)).Magnitude
+            if (circle.Radius * 2 > Mag and Mag < Distance) then
+                if ScreenVisible and Distance > Mag and Health > 0 then
+                    Part = k:FindFirstChild("HumanoidRootPart")
+                    Distance = Mag
+                end
+            end  
+        end
+    end 
+    return Part
+end
+
+Script.Functions.GetNearestNPCDHT = function()
+    local Part
+    local Distance = math.huge 
+    for c,k in next, game:GetService("Workspace").NPC:GetChildren() do 
+        if (k.Name == 'Dummy' and k:FindFirstChild('Humanoid')) then
+            local Health = k.Humanoid.Health 
+            local ScreenPosition, ScreenVisible = Camera:WorldToScreenPoint(k:FindFirstChild("HumanoidRootPart").Position)
+            local Mag = (Vector2.new(Mouse.X,Mouse.Y) - Vector2.new(ScreenPosition.X,ScreenPosition.Y)).Magnitude
+            if (circle.Radius * 2 > Mag and Mag < Distance) then
+                if ScreenVisible and Distance > Mag and Health > 0 then
+                    Part = k:FindFirstChild("HumanoidRootPart")
+                    Distance = Mag
+                end
+            end  
+        end
+    end 
+    return Part
+end
+
+Script.Functions.GetNearestBallPart = function()
+    local Part
+    local Distance = math.huge 
+    for c,k in next, game:GetService("Workspace").Targets:GetChildren() do 
+        if (k.Name == 'SphereTarget') then
+            local ScreenPosition, ScreenVisible = Camera:WorldToScreenPoint(k.Position)
+            local Mag = (Vector2.new(Mouse.X,Mouse.Y) - Vector2.new(ScreenPosition.X,ScreenPosition.Y)).Magnitude
+            if (Mag < Distance) then
+                if ScreenVisible and Distance > Mag then
+                    Part = k
+                    Distance = Mag
+                end
+            end  
+        end
+    end 
+    return Part
+end
+
+Script.Functions.Aim = function(Part)
+    local hit = Part:GetRenderCFrame().Position + (Part.Velocity * Settings.AimAssist.Prediction)
+    local newpos = workspace.CurrentCamera.WorldToScreenPoint(workspace.CurrentCamera, hit)
+
+    if CurrentGame.CustomSettings.BotAimTrain then
+        mousemoverel((newpos.X - Mouse.X) * Settings.AimAssist.Smoothing.X_Axis.SmoothingAmount, (newpos.Y - Mouse.Y) * Settings.AimAssist.Smoothing.Y_Axis.SmoothingAmount)
+    elseif ScriptInformation.Selected ~= nil and Script.Functions.IsVisible(ScriptInformation.Selected.Character.Head.Position, {ScriptInformation.Selected.Character, game.Players.LocalPlayer.Character, workspace.CurrentCamera}) then
+        mousemoverel((newpos.X - Mouse.X) * Settings.AimAssist.Smoothing.X_Axis.SmoothingAmount, (newpos.Y - Mouse.Y) * Settings.AimAssist.Smoothing.Y_Axis.SmoothingAmount)
+    elseif CurrentGame.CustomSettings.AimTrainer then
+        mousemoverel((newpos.X - Mouse.X) * 0.20, (newpos.Y - Mouse.Y) * 0.20)
+    elseif CurrentGame.CustomSettings.DHT then
+        mousemoverel((newpos.X - Mouse.X) * Settings.AimAssist.Smoothing.X_Axis.SmoothingAmount, (newpos.Y - Mouse.Y) * Settings.AimAssist.Smoothing.Y_Axis.SmoothingAmount)
+    end
+end
+
+Script.Functions.IsDowned = function(player) 
+    if CurrentGame == 0 then
+        return false
+    end
+
+    if (player.Character) and CurrentGame ~= 0 then
+        return CurrentGame.Functions.GetKOValue(player)
+    end
+
+    return true
+end
+
+Script.Functions.CheckSilent = function() 
+    if CurrentGame == 0 then
+        return false
+    end
+    if CurrentGame ~= 0 then
+        return (Settings.BulletAssist.Enabled and Settings.BulletAssist.Selected ~= nil and (Settings.BulletAssist.Selected.Character) and Settings.BulletAssist.Selected ~= game.Players.LocalPlayer and not Script.Functions.IsDowned(Settings.BulletAssist.Selected) and SelectedPart ~= nil)
+    end
+    return true
+end
+
+Script.Functions.getToolName = function(name)
+    local split = string.split(string.split(name, "[")[2], "]")[1]
+    return split
+end
+
+Script.Functions.getEquippedWeaponName = function(player)
+   if (player.Character) and player.Character:FindFirstChildWhichIsA("Tool") then
+      local Tool =  player.Character:FindFirstChildWhichIsA("Tool")
+      if string.find(Tool.Name, "%[") and string.find(Tool.Name, "%]") and not string.find(Tool.Name, "Wallet") and not string.find(Tool.Name, "Phone") then 
+         return Script.Functions.getToolName(Tool.Name)
+      end
+   end
+   return nil
+end
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+    if input.KeyCode == Settings.LagSpike.Keybind and CurrentGame ~= 0 and not processed then
+        Settings.LagSpike.Enabled = not Settings.LagSpike.Enabled
+        Settings().Network.IncomingRepeatedLag = Settings.LagSpike.Enabled == true and Settings.LagSpike.RepeatedLag or 0
+    end
+end)
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+    if input.KeyCode == Settings.AimAssist.Target_Bind and not processed then
+        if CurrentGame.CustomSettings.BotAimTrain then
+            if BotToggled ~= false then
+                BotToggled = false
+            else
+                BotToggled = true
+            end
+        elseif CurrentGame.CustomSettings.DHT then
+            if BotToggled2 ~= false then
+                BotToggled2 = false
+            else
+                BotToggled2 = true
+            end
+        else
+            if ScriptInformation.Selected ~= nil then
+                ScriptInformation.Selected = nil
+            else
+                ScriptInformation.Selected = Script.Functions.GetClosestPlayerMulitple()
+            end
+        end
+    end
+end)
+
+game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+    if input.KeyCode == Settings.AimAssist.UniversalTargetBind and not processed then
+        if CurrentGame.CustomSettings.AimTrainer then
+            if PartBotToggled ~= false then
+                PartBotToggled = false
+            else
+                PartBotToggled = true
+            end
+        end
+    end
+end)
+
+task.spawn(function()
+    while task.wait(1) do
+        Memory = tostring(math.random(780, 840)) .. "." .. tostring(math.random(10, 99))
+    end
+end)
+
+task.spawn(function()
+    while task.wait() do
+        if Settings.BulletAssist.ClosestPart and Settings.BulletAssist.Selected ~= nil and (Settings.BulletAssist.Selected.Character) then
+            SelectedPart = tostring(Script.Functions.GetNearestPartToCursorOnCharacter(Settings.BulletAssist.Selected.Character))
+        end
+    end
+end)
+
+game:GetService("RunService").RenderStepped:Connect(function()
+
+    Script.Functions.UpdateFOV()
+    Script.Functions.GetClosestPlayer()
+    
+    if Script.Functions.getEquippedWeaponName(game.Players.LocalPlayer) ~= nil and CurrentGame ~= 0 and Settings.BulletAssist.UseGunFOV then
+        local WeaponSettings = getgenv().GunSettings[Script.Functions.getEquippedWeaponName(game.Players.LocalPlayer)]
+        if WeaponSettings ~= nil then
+            Settings.FOVSettings.FOV = WeaponSettings.FOV
+        else
+            Settings.FOVSettings.FOV = Settings.FOVSettings.FOV
+        end
+    end    
+
+    if Settings.AimAssist.Enabled and ScriptInformation.Selected ~= nil and (ScriptInformation.Selected.Character) and not Script.Functions.IsDowned(ScriptInformation.Selected) and CurrentGame ~= 0 then
+        local HitPart = Script.Functions.GetNearestPartToCursorOnCharacter(ScriptInformation.Selected.Character)
+        Script.Functions.Aim(HitPart)
+    elseif Settings.AimAssist.Enabled and CurrentGame ~= 0 and CurrentGame.CustomSettings.BotAimTrain and BotToggled and Script.Functions.GetNearestBotPart() ~= nil then
+        local HitPart = Script.Functions.GetNearestBotPart()
+        Script.Functions.Aim(HitPart)
+    elseif Settings.AimAssist.Enabled and CurrentGame ~= 0 and CurrentGame.CustomSettings.AimTrainer and PartBotToggled and Script.Functions.GetNearestBallPart() ~= nil then
+        local HitPart = Script.Functions.GetNearestBallPart()
+        Script.Functions.Aim(HitPart)
+    elseif Settings.AimAssist.Enabled and CurrentGame ~= 0 and CurrentGame.CustomSettings.DHT and BotToggled2 and Script.Functions.GetNearestNPCDHT() ~= nil then
+        local HitPart = Script.Functions.GetNearestNPCDHT()
+        Script.Functions.Aim(HitPart)
+    end
+
+    if Settings.BulletAssist.Visualization and Settings.BulletAssist.Enabled and Settings.BulletAssist.Selected ~= nil and Settings.BulletAssist.Selected ~= game.Players.LocalPlayer and (Settings.BulletAssist.Selected.Character) and CurrentGame ~= 0 then
+        local Vector, OnScreen = cc:worldToViewportPoint(Settings.BulletAssist.Selected.Character[SelectedPart].Position + (Settings.BulletAssist.Selected.Character[SelectedPart].Velocity * Settings.BulletAssist.Prediction))
+        Visualization.Visible = true
+        Visualization.Position = Vector2.new(Vector.X, Vector.Y)
+    else
+        Visualization.Visible = false
+    end
+
+end)
+
+if CurrentGame.CustomSettings.PhantomForcesFix then
+    local shared = getrenv().shared;
+    local modules = {
+        network = shared.require("network")
+    };
+    local old = modules.network.send;
+    if CurrentGame.CustomSettings.HeadShot then
+        function modules.network:send(n, ...)
+            local args = table.pack(...);
+            if n == "newbullets" then
+                return old(self, n, args[1], args[2], args[3], args[4])
+            elseif n == "bullethit" then
+                return old(self, n, args[1], args[2], "Head", args[4])
+            end
+            return old(self, n, table.unpack(args));
+        end
+    end
+end
+
+local oldNamecall
+oldNamecall = hookmetamethod(game, "__namecall", function(...)
+    local args = {...};
+    local method = getnamecallmethod();
+    local self = args[1]
+    if method == "FireServer" and CurrentGame.SilentAimMethod == "MouseArguments" and args[2] == CurrentGame.MouseArguments and Script.Functions.CheckSilent() then
+        if Settings.BulletAssist.Resolver and Script.Functions.CheckSilent() then
+            old_vel = game.Players[Settings.BulletAssist.Selected.Name].Character.HumanoidRootPart.Velocity
+            game.Players[Settings.BulletAssist.Selected.Name].Character.HumanoidRootPart.Velocity = Vector3.new(old_vel.X, Y, old_vel.Z)
+        end 
+
+        if Settings.BulletAssist.UsePrediction and CurrentGame.CustomSettings.NeedsPrediction then 
+            args[3] = Settings.BulletAssist.Selected.Character[SelectedPart].Position + (Settings.BulletAssist.Selected.Character[SelectedPart].Velocity * Settings.BulletAssist.Prediction)
+        else
+            args[3] = Settings.BulletAssist.Selected.Character[SelectedPart].Position
+        end
+        return oldNamecall(unpack(args))
+    elseif method == "FindPartOnRayWithIgnoreList" and CurrentGame.SilentAimMethod == method and Script.Functions.CheckSilent() and self == workspace and not checkcaller() then
+        if ValidateArguments(args, ExpectedArguments.FindPartOnRayWithIgnoreList) then
+            local A_Ray = args[2]
+            local HitPart = Settings.BulletAssist.Selected.Character[SelectedPart]
+            if HitPart then
+                local Origin = A_Ray.Origin
+                local Direction = getDirection(Origin, HitPart.Position)
+                args[2] = Ray.new(Origin, Direction)
+                return oldNamecall(unpack(args))
+            end
+         end
+    elseif method == "FindPartOnRayWithWhitelist" and CurrentGame.SilentAimMethod == method and Script.Functions.CheckSilent() and self == workspace and not checkcaller() then
+        if ValidateArguments(args, ExpectedArguments.FindPartOnRayWithWhitelist) then
+            local A_Ray = args[2]
+            local HitPart = Settings.BulletAssist.Selected.Character[SelectedPart]
+            if HitPart then
+                local Origin = A_Ray.Origin
+                local Direction = getDirection(Origin, HitPart.Position)
+                args[2] = Ray.new(Origin, Direction)
+                return oldNamecall(unpack(args))
+            end
+        end
+    elseif (method == "FindPartOnRay" or method == "findPartOnRay") and CurrentGame.SilentAimMethod == method and self == workspace and not checkcaller() then
+        if ValidateArguments(args, ExpectedArguments.FindPartOnRay) then
+            local A_Ray = args[2]
+            local HitPart = Settings.BulletAssist.Selected.Character[SelectedPart]
+            if HitPart then
+                local Origin = A_Ray.Origin
+                local Direction = getDirection(Origin, HitPart.Position)
+                args[2] = Ray.new(Origin, Direction)
+                return oldNamecall(unpack(args))
+            end
+        end
+    elseif method == "Raycast" and CurrentGame.SilentAimMethod == method and Script.Functions.CheckSilent() and self == workspace and not checkcaller() then
+        if ValidateArguments(args, ExpectedArguments.Raycast) then
+            local A_Origin = args[2]
+            local HitPart = Settings.BulletAssist.Selected.Character[SelectedPart]
+            if HitPart then
+                args[3] = getDirection(A_Origin, HitPart.Position)
+                return oldNamecall(unpack(args))
+            end
+        end
+    end 
+    return oldNamecall(...)
+end);
+
+-- Mouse.Hit/Target Mode --
+
+local oldIndex
+oldIndex = hookmetamethod(game, "__index", newcclosure(function(self, Index)
+    if self == Mouse and not checkcaller() and Script.Functions.CheckSilent() and CurrentGame.SilentAimMethod == "Mouse.Hit/Target" then
+        local HitPart = Settings.BulletAssist.Selected.Character[SelectedPart]
+        if Index == "Hit" or Index == "hit" then 
+            if Settings.BulletAssist.UsePrediction and CurrentGame.CustomSettings.NeedsPrediction then 
+                if CurrentGame.CustomSettings.AnarchyFix then
+                    return (HitPart.CFrame + (HitPart.AssemblyLinearVelocity * 0 + NeckOffSet))
+                else
+                    return (HitPart.Position + (HitPart.Velocity * Settings.BulletAssist.Prediction))
+                end
+            else
+                return (HitPart.Position)
+            end
+        end
+    end
+    return oldIndex(self, Index)
+end))
