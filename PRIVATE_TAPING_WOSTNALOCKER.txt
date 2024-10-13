@@ -2,7 +2,7 @@ local configs = {
     main = {
         enabled = true,
         aimlockkey = "c",
-        prediction = 0.128984,
+        prediction = 0.130340,
         aimpart = 'HumanoidRootPart', -- Head, UpperTorso, HumanoidRootPart, LowerTorso
         notifications = true
     }
