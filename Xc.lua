@@ -1,14 +1,14 @@
 getgenv().Elysian = {
     ['Camlock'] = {
-        ['Manual Prediction'] = 0.1356875,
+        ['Manual Prediction'] = 0.13892,
         ['Auto Prediction'] = {
             ['Enabled'] = true,
             ['Ping'] = {
                 ['20'] = 0.10036,
-                ['30'] = 0.1130,
-                ['40'] = 0.13544,
-                ['50'] = 0.1357,
-                ['60'] = 0.13598,
+                ['30'] = 0.101,
+                ['40'] = 0.12,
+                ['50'] = 0.132,
+                ['60'] = 0.13419,
                 ['70'] = 0.13892,
                 ['80'] = 0.1403,
                 ['90'] = 0.1446,
@@ -16,12 +16,12 @@ getgenv().Elysian = {
             }
         },
         ['Smoothing'] = {
-            ['Enabled'] = true,
+            ['Enabled'] = false,
             ['Value'] = 0.08234
         },
         ['Offset'] = {
             ['Jump'] = 0.15,
-            ['Fall'] = -0.46,
+            ['Fall'] = 0.,
         },
         ['Auto Shoot'] = true,
         ['Airshot Function'] = {
