@@ -20,7 +20,7 @@ getgenv().Elysian = {
             ['Value'] = 0.08234
         },
         ['Offset'] = {
-            ['Jump'] = 0.15,
+            ['Jump'] = 0.0231,
             ['Fall'] = 0.,
         },
         ['Auto Shoot'] = true,
