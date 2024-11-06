@@ -1,0 +1,373 @@
+getgenv().Elisium = {
+    Camlock = {
+        Enabled = true,
+        AimPart = "UpperTorso",
+        Prediction = 0.123,
+        Smoothness = 0.09,
+        Mode = "Button",
+        Spectate = false
+    },
+    Cframe = {
+        enabled = false,
+        speed = 2
+    },
+    TargetStrafe = {
+        Enabled = false,
+        StrafeSpeed = 25,
+        StrafeRadius = 7,
+        StrafeHeight = 6,
+        RandomizerMode = false
+    },
+    TargetAim = {
+        enabled = true,
+        targetPart = "UpperTorso",
+        prediction = 0.1535
+    },
+    Loaded = false
+}
+
+local target = nil
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local player = Players.LocalPlayer
+local Mouse = player:GetMouse()
+local Camera = Workspace.CurrentCamera
+local playerCharacter = player.Character or player.CharacterAdded:Wait()
+
+if Elisium.Loaded then
+    notify("Already Loaded")
+    return
+end
+
+Elisium.Loaded = true
+
+game:GetService("RunService").RenderStepped:Connect(
+    function(deltaTime)
+        if Elisium.Camlock.Spectate and target then
+game.Workspace.CurrentCamera.CameraSubject = target.Character
+   else
+game.Workspace.CurrentCamera.CameraSubject = game.Players.LocalPlayer.Character.Humanoid
+        end
+   end
+)
+
+local Notification = Instance.new("ScreenGui")
+local Holder = Instance.new("Frame")
+local UIListLayout = Instance.new("UIListLayout")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+for Key, Object in pairs(getgc(true)) do
+    if type(Object) == "table" then
+        setreadonly(Object, false)
+        local indexInstance = rawget(Object, "indexInstance")
+        if type(indexInstance) == "table" and indexInstance[1] == "kick" then
+            setreadonly(indexInstance, false)
+            rawset(
+                Object,
+                "Table",
+                {
+                    "kick",
+                    function()
+                        coroutine.yield()
+                    end
+                }
+            ) --> By using coroutine.yield() we are preventing script table from communicating with the server.
+            warn(
+                "\n---[ INFO ]---\nBypassed Adonis Anti-Cheat/Anti-Exploit.\nBypass Method: Preventing Script Table From Communicating With The Server."
+            )
+            break
+        end
+    end
+end
+
+Notification.Name = "Notification"
+Notification.Parent = game.CoreGui
+Notification.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Holder.Name = "Holder"
+Holder.Parent = Notification
+Holder.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+Holder.BackgroundTransparency = 1
+Holder.Position = UDim2.new(1, -10, 0, 10)
+Holder.AnchorPoint = Vector2.new(1, 0)
+Holder.Size = UDim2.new(0, 243, 0, 240)
+
+UIListLayout.Parent = Holder
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 4)
+
+local function createNotificationTemplate(text, duration)
+    local Template = Instance.new("Frame")
+    local ColorBar = Instance.new("Frame")
+    local TextLabel = Instance.new("TextLabel")
+
+    Template.Name = text
+    Template.Parent = Holder
+    Template.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Template.BorderSizePixel = 0
+    Template.Size = UDim2.new(1, 0, 0, 22)
+    Template.Transparency = 1
+
+    ColorBar.Name = "ColorBar"
+    ColorBar.Parent = Template
+    ColorBar.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    ColorBar.BorderSizePixel = 0
+    ColorBar.Size = UDim2.new(0, 2, 0, 22)
+    ColorBar.Transparency = 1
+
+    TextLabel.Parent = Template
+    TextLabel.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel.BackgroundTransparency = 1
+    TextLabel.BorderSizePixel = 0
+    TextLabel.Position = UDim2.new(0, 8, 0, 0)
+    TextLabel.Size = UDim2.new(1, -10, 0, 22)
+    TextLabel.Font = Enum.Font.Code
+    TextLabel.Text = text .. " [" .. duration .. "s]"
+    TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TextLabel.TextSize = 12
+    TextLabel.TextStrokeTransparency = 0
+    TextLabel.TextXAlignment = Enum.TextXAlignment.Left
+    TextLabel.Transparency = 1
+
+    return Template, ColorBar, TextLabel
+end
+
+function notify(text, time)
+    if time <= 0 then
+        warn("Notification duration must be greater than 0")
+        return
+    end
+
+    local Template, ColorBar, TextLabel = createNotificationTemplate(text, time)
+
+    local tweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local fadeInGoal = {Transparency = 0}
+    local fadeOutGoal = {Transparency = 1}
+
+    local sizeTween = TweenService:Create(Template, tweenInfo, fadeInGoal)
+    local colorBarTween = TweenService:Create(ColorBar, tweenInfo, fadeInGoal)
+    local textTween = TweenService:Create(TextLabel, tweenInfo, fadeInGoal)
+
+    sizeTween:Play()
+    colorBarTween:Play()
+    textTween:Play()
+
+    local elapsed = 0
+    local updateConnection
+
+    updateConnection = RunService.RenderStepped:Connect(function(dt)
+        elapsed = elapsed + dt
+        local remainingTime = math.max(0, time - elapsed)
+        TextLabel.Text = text .. " [" .. string.format("%.1f", remainingTime) .. "s]"
+
+        if remainingTime <= 0 then
+            updateConnection:Disconnect()
+            local fadeOutTween = TweenService:Create(Template, tweenInfo, fadeOutGoal)
+            fadeOutTween:Play()
+            fadeOutTween.Completed:Wait()
+            Template:Destroy()
+        end
+    end)
+end
+
+local function GetClosestPlayer()
+    local closestPlayer = nil
+    local shortestScore = math.huge
+
+    for _, plr in pairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Character and plr.Character:FindFirstChild(Elisium.Camlock.AimPart) and plr.Character:FindFirstChild("Humanoid") and plr.Character.Humanoid.Health > 0 then
+            local part = plr.Character[Elisium.Camlock.AimPart]
+            local relativePos = part.Position - Camera.CFrame.Position
+            local playerDistance = relativePos.Magnitude
+            local screenPosition, onScreen = Camera:WorldToViewportPoint(part.Position)
+
+            if onScreen then
+                local angle = math.deg(math.acos(Camera.CFrame.LookVector:Dot(relativePos.Unit)))
+                local mouseDistance = (Vector2.new(screenPosition.X, screenPosition.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+
+                local score = mouseDistance * 0.3 + (angle / 90) * 0.5 + (playerDistance / 1000) * 0.2
+
+                local ray = Ray.new(Camera.CFrame.Position, relativePos.Unit * playerDistance)
+                local hitPart = Workspace:FindPartOnRayWithIgnoreList(ray, {plr.Character})
+
+                if (not hitPart or hitPart:IsDescendantOf(plr.Character)) and score < shortestScore then
+                    closestPlayer = plr
+                    shortestScore = score
+                end
+            end
+        end
+    end
+
+    return closestPlayer
+end
+
+local function ToggleLock()
+    if Elisium.Camlock.Enabled then
+        if target then
+            notify("Lock: Unlocked!", 5)
+            target = nil
+        else
+            target = GetClosestPlayer()
+            if target then
+                notify("Lock: Locked onto " .. tostring(target.Name), 5)
+            else
+                notify("Lock: No target found", 5)
+            end
+        end
+    else
+        notify("Lock not enabled", 5)
+    end
+end
+
+if Elisium.Camlock.Mode == "Tool" then
+    local Tool = Instance.new("Tool")
+    Tool.RequiresHandle = false
+    Tool.Name = "Lock Tool"
+    Tool.Parent = player.Backpack
+
+    local function onCharacterAdded()
+        Tool.Parent = player.Backpack
+    end
+
+    player.CharacterAdded:Connect(onCharacterAdded)
+
+    player.CharacterRemoving:Connect(function()
+        Tool.Parent = player.Backpack
+    end)
+
+    Tool.Activated:Connect(function()
+        ToggleLock()
+    end)
+
+elseif Elisium.Camlock.Mode == "Button" then
+    local playerGui = player:WaitForChild("PlayerGui")
+
+    local function setupGui()
+        local screenGui = playerGui:FindFirstChild("LockScreenGui")
+
+        if not screenGui then
+            screenGui = Instance.new("ScreenGui")
+            screenGui.Name = "LockScreenGui"
+            screenGui.Parent = playerGui
+        end
+
+        local button = screenGui:FindFirstChild("LockButton")
+
+        if not button then
+            button = Instance.new("TextButton")
+            button.Name = "LockButton"
+            button.Size = UDim2.new(0, 100, 0, 55)
+            button.Position = UDim2.new(0.5, -100, 0.8, -25)
+            button.Text = "Aimlock"
+            button.TextSize = 15
+            button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            button.Parent = screenGui
+            button.Active = true
+            button.Draggable = true
+
+            local UICorner = Instance.new("UICorner")
+            UICorner.CornerRadius = UDim.new(0, 25)
+            UICorner.Parent = button
+
+            button.MouseButton1Click:Connect(function()
+                ToggleLock()
+            end)
+        end
+    end
+
+    setupGui()
+
+    player.CharacterAdded:Connect(function()
+        setupGui()
+    end)
+end
+
+RunService.RenderStepped:Connect(function()
+    if target and target.Character and target.Character:FindFirstChild(Elisium.Camlock.AimPart) then
+        local aimPart = target.Character[Elisium.Camlock.AimPart]
+        local targetPosition = aimPart.Position + aimPart.Velocity * Elisium.Camlock.Prediction
+        local lookPosition = CFrame.new(Camera.CFrame.p, targetPosition)
+        Camera.CFrame = Camera.CFrame:Lerp(lookPosition, Elisium.Camlock.Smoothness)
+
+        if Elisium.TargetStrafe.Enabled then
+            local lp = player.Character
+            local targpos = target.Character.HumanoidRootPart.Position
+            local strafeOffset
+            
+            if Elisium.TargetStrafe.RandomizerMode then
+                strafeOffset = Vector3.new(
+                    math.random(-Elisium.TargetStrafe.StrafeRadius, Elisium.TargetStrafe.StrafeRadius),
+                    math.random(0, Elisium.TargetStrafe.StrafeHeight),
+                    math.random(-Elisium.TargetStrafe.StrafeRadius, Elisium.TargetStrafe.StrafeRadius)
+                )
+            else
+                strafeOffset = Vector3.new(
+                    math.cos(tick() * Elisium.TargetStrafe.StrafeSpeed) * Elisium.TargetStrafe.StrafeRadius,
+                    Elisium.TargetStrafe.StrafeHeight,
+                    math.sin(tick() * Elisium.TargetStrafe.StrafeSpeed) * Elisium.TargetStrafe.StrafeRadius
+                )
+            end
+
+            local strafePosition = targpos + strafeOffset
+            strafePosition = Vector3.new(strafePosition.X, math.max(strafePosition.Y, targpos.Y), strafePosition.Z)
+            
+            lp:SetPrimaryPartCFrame(CFrame.new(strafePosition))
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(
+                player.Character.HumanoidRootPart.Position,
+                Vector3.new(targpos.X, player.Character.HumanoidRootPart.Position.Y, targpos.Z)
+            )
+        end
+    end
+end)
+
+spawn(function()
+    RunService.Heartbeat:Connect(function()
+        if Elisium.Cframe.enabled then
+            player.Character.HumanoidRootPart.CFrame =
+                player.Character.HumanoidRootPart.CFrame + player.Character.Humanoid.MoveDirection * Elisium.Cframe.speed
+        end
+    end)
+end)
+
+
+for _, con in pairs(getconnections(Camera.Changed)) do
+    con:Disable()
+end
+for _, con in pairs(getconnections(Camera:GetPropertyChangedSignal("CFrame"))) do
+    con:Disable()
+end
+
+
+local mt = getrawmetatable(game)
+local oldNameCall = mt.__namecall
+setreadonly(mt, false)
+
+mt.__namecall = newcclosure(function(Self, ...)
+    local args = {...}
+    local methodName = getnamecallmethod()
+    if not checkcaller() and methodName == "FireServer" and Elisium.TargetAim.enabled then
+        for i, Argument in ipairs(args) do
+            if typeof(Argument) == "Vector3" and target and target.Character then
+                args[i] = target.Character[Elisium.TargetAim.targetPart].Position + (target.Character[Elisium.TargetAim.targetPart].Velocity * Elisium.TargetAim.prediction)
+            end
+        end
+    end
+    return oldNameCall(Self, unpack(args))
+end)
+
+setreadonly(mt, true)
+
+function drawRedCircle()
+    local circle = Drawing.new("Circle")
+    circle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
+    circle.Radius = 120
+    circle.Color = Color3.fromRGB(0, 0, 0)
+    circle.Thickness = 1
+    circle.Filled = false
+    circle.Visible = true
+end
+
+drawRedCircle()
