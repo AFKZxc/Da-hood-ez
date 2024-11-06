@@ -2,8 +2,8 @@ getgenv().Elisium = {
     Camlock = {
         Enabled = true,
         AimPart = "UpperTorso",
-        Prediction = 0.123,
-        Smoothness = 0.09,
+        Prediction = 0.160402,
+        Smoothness = 0.895,
         Mode = "Button",
         Spectate = false
     },
