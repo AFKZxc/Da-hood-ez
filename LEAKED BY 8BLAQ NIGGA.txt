@@ -1,0 +1,306 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local camera = workspace.CurrentCamera
+
+local camLocked = false
+local espEnabled = false
+local teamCheck = false
+local KOCHECK = false
+local autoShooting = false
+local autoAirEnabled = false -- Auto Air toggle variable
+local cframing = false
+local cframeWalkAmount = 3
+local toggleKey = Enum.KeyCode.E 
+local Prediction = 0.14644
+local horizontalOffset = 0.17
+local jumpOffset = 0.07
+local cameraSmoothness = 0.2
+local shakeIntensity = 0.2 
+local targetEnemy = nil 
+local espBoxes = {} 
+local espNames = {}
+local aimPart = nil 
+
+local function getRandomPart(character)
+    return character:FindFirstChild("UpperTorso") or character:FindFirstChild("HumanoidRootPart")
+end
+
+local function isEnemy(player)
+    if teamCheck then
+        return player.Team ~= LocalPlayer.Team 
+    end
+    return true 
+end
+
+local function isKnockedOut(player)
+    local humanoid = player.Character and player.Character:FindFirstChild("Humanoid")
+    return humanoid and (humanoid.Health <= 0)
+end
+
+local function getClosestEnemy()
+    local closestDistance = math.huge
+    local closestEnemy = nil
+    local centerScreen = Vector2.new(
+        game:GetService("GuiService"):GetScreenResolution().X / 2,
+        game:GetService("GuiService"):GetScreenResolution().Y / 2
+    )
+
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= LocalPlayer and otherPlayer.Character and isEnemy(otherPlayer) then
+            if KOCHECK and isKnockedOut(otherPlayer) then
+                continue 
+            end
+            
+            local targetPart = getRandomPart(otherPlayer.Character)
+            if targetPart then
+                local enemyPosition, isVisible = camera:WorldToViewportPoint(targetPart.Position)
+                if isVisible then
+                    local distance = (centerScreen - Vector2.new(enemyPosition.X, enemyPosition.Y)).Magnitude
+                    if distance < closestDistance then
+                        closestDistance = distance
+                        closestEnemy = otherPlayer.Character
+                        aimPart = targetPart 
+                    end
+                end
+            end
+        end
+    end
+    return closestEnemy
+end
+
+local function resolveEnemy(enemy)
+    local targetPart = getRandomPart(enemy)
+    if targetPart then
+        local isJumping = enemy:FindFirstChild("Humanoid") and enemy.Humanoid:GetState() == Enum.HumanoidStateType.Jumping
+        local offset = targetPart.Velocity * (isJumping and 0.0 or Prediction) + Vector3.new(horizontalOffset, isJumping and jumpOffset or 0, 0)
+        return targetPart.Position + offset
+    end
+    return enemy:FindFirstChild("HumanoidRootPart").Position
+end
+
+-- Auto Air Function (only works if camLocked is enabled and an enemy is targeted)
+local function AutoAir()
+    if autoAirEnabled and camLocked and targetEnemy and targetEnemy:FindFirstChild("HumanoidRootPart") then
+        local TargetVel = targetEnemy.HumanoidRootPart.Velocity
+        if TargetVel.Y > 15 then -- Check if the target is in the air
+            local tool = LocalPlayer.Character:FindFirstChildOfClass("Tool")
+            if tool then
+                tool:Activate() -- Auto activate the tool when target is airborne
+            end
+        end
+    end
+end
+
+local function AutoShoot()
+    if camLocked and aimPart then
+        local character = LocalPlayer.Character
+        if character then
+            local tool = character:FindFirstChildOfClass("Tool")
+            if tool and tool:IsA("Tool") then
+                tool:Activate()
+                wait(0.01) -- Add delay of 0.01 seconds between shots
+            end
+        end
+    end
+end
+
+local function CframeWalk()
+    if cframing and LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = LocalPlayer.Character.HumanoidRootPart
+        local moveDirection = LocalPlayer.Character.Humanoid.MoveDirection
+        hrp.CFrame = hrp.CFrame + (moveDirection * cframeWalkAmount)
+    end
+end
+
+-- ESP Functions
+local function createESP(target)
+    if not espBoxes[target] then
+        local box = Instance.new("SelectionBox")
+        box.Adornee = target
+        box.Color3 = Color3.new(1, 1, 1)
+        box.LineThickness = 0.05
+        box.Parent = target
+        espBoxes[target] = box
+
+        local nameLabel = Instance.new("BillboardGui")
+        nameLabel.Adornee = target
+        nameLabel.Size = UDim2.new(1, 0, 1, 0)
+        nameLabel.StudsOffset = Vector3.new(0, 3, 0)
+        nameLabel.AlwaysOnTop = true
+
+        local nameText = Instance.new("TextLabel")
+        nameText.Size = UDim2.new(1, 0, 1, 0)
+        nameText.Text = target.Name
+        nameText.TextColor3 = Color3.new(1, 1, 1)
+        nameText.BackgroundTransparency = 1
+        nameText.Font = Enum.Font.Arcade
+        nameText.TextSize = 24 
+        nameText.TextStrokeTransparency = 0.5
+        nameText.Parent = nameLabel
+        espNames[target] = nameLabel
+        nameLabel.Parent = target
+    end
+end
+
+local function removeESP(target)
+    if espBoxes[target] then
+        espBoxes[target]:Destroy()
+        espBoxes[target] = nil
+    end
+
+    if espNames[target] then
+        espNames[target]:Destroy()
+        espNames[target] = nil
+    end
+end
+
+local function updateESP()
+    if espEnabled then
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character and isEnemy(player) then
+                if KOCHECK and isKnockedOut(player) then
+                    removeESP(player.Character)
+                else
+                    createESP(player.Character)
+                end
+            end
+        end
+    else
+        for _, player in pairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character then
+                removeESP(player.Character)
+            end
+        end
+    end
+end
+
+-- Connect key and render functions
+RunService.RenderStepped:Connect(function()
+    if camLocked then
+        if autoShooting then
+            AutoShoot()
+        end
+    end
+end)
+
+RunService.Heartbeat:Connect(function()
+    if camLocked and aimPart then
+        local resolvedPosition = resolveEnemy(targetEnemy)
+        local shakeOffset = Vector3.new(
+            math.random() * shakeIntensity - (shakeIntensity / 2),
+            math.random() * shakeIntensity - (shakeIntensity / 2),
+            0
+        )
+        camera.CFrame = CFrame.new(
+            camera.CFrame.Position:Lerp(resolvedPosition + shakeOffset, cameraSmoothness), 
+            resolvedPosition
+        )
+    end
+    CframeWalk()
+    AutoAir() -- Trigger AutoAir if conditions are met
+end)
+
+local function TriggerAutoShoot(state)
+    autoShooting = state
+end
+
+UIS.InputBegan:Connect(function(input)
+    if input.KeyCode == toggleKey then
+        toggleCamLock()
+    elseif input.KeyCode == Enum.KeyCode.F then
+        cframing = not cframing
+    end
+end)
+
+-- GUI and buttons
+local gui = Instance.new("ScreenGui")
+gui.Name = "despairGui" -- Renamed the GUI for clarity
+gui.Parent = game.CoreGui
+
+local function styleButton(button)
+    button.TextSize = 24 
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.BackgroundTransparency = 1 
+    button.BorderColor3 = Color3.new(1, 1, 1)
+    button.BorderSizePixel = 4
+    button.Font = Enum.Font.Arcade
+    button.Size = UDim2.new(0.1, 0, 0.05, 0)
+
+    local cornerUI = Instance.new("UICorner")
+    cornerUI.CornerRadius = UDim.new(0, 5)
+    cornerUI.Parent = button
+
+    local uiStroke = Instance.new("UIStroke")
+    uiStroke.Color = Color3.new(0, 0, 0)
+    uiStroke.Thickness = 2
+    uiStroke.Parent = button
+end
+
+local camLockButton = Instance.new("TextButton")
+camLockButton.Text = "Lock" -- Changed button text to "Lock"
+styleButton(camLockButton)
+camLockButton.Position = UDim2.new(0.8, 0, 0.5, 0)
+
+camLockButton.MouseButton1Click:Connect(function()
+    camLocked = not camLocked
+    targetEnemy = camLocked and getClosestEnemy() or nil
+    camLockButton.Text = camLocked and "Lock ON" or "Lock OFF"
+end)
+
+camLockButton.Parent = gui
+camLockButton.Draggable = true
+
+local autoAirButton = Instance.new("TextButton")
+autoAirButton.Text = "Toggle Auto Air"
+styleButton(autoAirButton)
+autoAirButton.Position = UDim2.new(0.8, 0, 0.74, 0)
+
+autoAirButton.MouseButton1Click:Connect(function()
+    autoAirEnabled = not autoAirEnabled
+    autoAirButton.Text = autoAirEnabled and "Auto Air ON" or "Auto Air OFF"
+end)
+
+autoAirButton.Parent = gui
+autoAirButton.Draggable = true
+
+local cframeButton = Instance.new("TextButton")
+cframeButton.Text = "Toggle CFrame Walk"
+styleButton(cframeButton)
+cframeButton.Position = UDim2.new(0.8, 0, 0.62, 0)
+
+cframeButton.MouseButton1Click:Connect(function()
+    cframing = not cframing
+    cframeButton.Text = cframing and "CFrame Walk ON" or "CFrame Walk OFF"
+end)
+
+cframeButton.Parent = gui
+cframeButton.Draggable = true
+
+local triggerBotButton = Instance.new("TextButton")
+triggerBotButton.Text = "Toggle Trigger Bot"
+styleButton(triggerBotButton)
+triggerBotButton.Position = UDim2.new(0.8, 0, 0.68, 0)
+
+triggerBotButton.MouseButton1Click:Connect(function()
+    autoShooting = not autoShooting
+    triggerBotButton.Text = autoShooting and "Trigger Bot ON" or "Trigger Bot OFF"
+end)
+
+triggerBotButton.Parent = gui
+triggerBotButton.Draggable = true
+
+local espButton = Instance.new("TextButton")
+espButton.Text = "Toggle ESP"
+styleButton(espButton)
+espButton.Position = UDim2.new(0.8, 0, 0.56, 0)
+
+espButton.MouseButton1Click:Connect(function()
+    espEnabled = not espEnabled
+    updateESP()
+    espButton.Text = espEnabled and "ESP ON" or "ESP OFF"
+end)
+
+espButton.Parent = gui
+espButton.Draggable = true
