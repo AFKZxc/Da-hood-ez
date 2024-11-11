@@ -1,0 +1,2086 @@
+--[[
+███████╗██╗   ██╗ ██████╗██╗  ██╗    ██╗   ██╗ ██████╗ ██╗   ██╗
+██╔════╝██║   ██║██╔════╝██║ ██╔╝    ╚██╗ ██╔╝██╔═══██╗██║   ██║
+█████╗  ██║   ██║██║     █████╔╝      ╚████╔╝ ██║   ██║██║   ██║
+██╔══╝  ██║   ██║██║     ██╔═██╗       ╚██╔╝  ██║   ██║██║   ██║
+██║     ╚██████╔╝╚██████╗██║  ██╗       ██║   ╚██████╔╝╚██████╔╝
+╚═╝      ╚═════╝  ╚═════╝╚═╝  ╚═╝       ╚═╝    ╚═════╝  ╚═════╝ 
+████████╗██████╗  █████╗ ███╗   ██╗███╗   ██╗██╗███████╗███████╗
+╚══██╔══╝██╔══██╗██╔══██╗████╗  ██║████╗  ██║██║██╔════╝██╔════╝
+   ██║   ██████╔╝███████║██╔██╗ ██║██╔██╗ ██║██║█████╗  ███████╗
+   ██║   ██╔══██╗██╔══██║██║╚██╗██║██║╚██╗██║██║██╔══╝  ╚════██║
+   ██║   ██║  ██║██║  ██║██║ ╚████║██║ ╚████║██║███████╗███████║
+   ╚═╝   ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═══╝╚═╝╚══════╝╚══════╝
+                                                                
+                                                                                                     
+███████╗██╗     ██╗     ██╗ █████╗ ██╗  ██╗    ██████╗ ██████╗  ██████╗ ██╗     
+██╔════╝██║     ██║     ██║██╔══██╗██║  ██║   ██╔════╝██╔═══██╗██╔═══██╗██║     
+█████╗  ██║     ██║     ██║███████║███████║   ██║     ██║   ██║██║   ██║██║     
+██╔══╝  ██║     ██║██   ██║██╔══██║██╔══██║   ██║     ██║   ██║██║   ██║██║     
+███████╗███████╗██║╚█████╔╝██║  ██║██║  ██║██╗╚██████╗╚██████╔╝╚██████╔╝███████╗
+╚══════╝╚══════╝╚═╝ ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝ ╚═════╝ ╚═════╝  ╚═════╝ ╚══════╝
+ ██████╗ ███╗   ██╗    ████████╗ ██████╗ ██████╗ 
+██╔═══██╗████╗  ██║    ╚══██╔══╝██╔═══██╗██╔══██╗
+██║   ██║██╔██╗ ██║       ██║   ██║   ██║██████╔╝
+██║   ██║██║╚██╗██║       ██║   ██║   ██║██╔═══╝ 
+╚██████╔╝██║ ╚████║       ██║   ╚██████╔╝██║     
+ ╚═════╝ ╚═╝  ╚═══╝       ╚═╝    ╚═════╝ ╚═╝     
+                                                 
+--]]
+local ThreeDrawingLibrary = loadstring(game:HttpGet("https://raw.githubusercontent.com/Blissful4992/ESPs/main/3D%20Drawing%20Api.lua"))()
+
+local MainStartAntiCheatBypass = tick()
+for k,v in pairs(getgc(true)) do
+    if pcall(function() return rawget(v,"indexInstance") end) and type(rawget(v,"indexInstance")) == "table" and  (rawget(v,"indexInstance"))[1] == "kick" then
+        v.tvk = {"kick",function() return game.Workspace:WaitForChild("") end}
+    end
+end
+
+--// bypass the fucking anti cheat
+assert(getrawmetatable)
+grm = getrawmetatable(game)
+setreadonly(grm, false)
+old = grm.__namecall
+
+grm.__namecall = newcclosure(function(self, ...)
+    local args = {...}  
+
+    local methodName = tostring(args[1])
+
+    local blockedMethods = {"TeleportDetect", "CHECKER_1", "CHECKER", "GUI_CHECK", "OneMoreTime", "checkingSPEED", "BANREMOTE", "PERMAIDBAN", "KICKREMOTE", "BR_KICKPC", "BR_KICKMOBILE"}
+
+    if table.find(blockedMethods, methodName) then return end
+
+    return old(self, ...)
+end)
+
+warn("Anti Cheat Bypass Took: " .. tostring(tick() - MainStartAntiCheatBypass .. " seconds"))
+
+--// nigger ive been trying this for so long now
+local ClosestPointPart
+
+--// Startime
+local MainStart = tick()
+local MainStartTable = tick()
+--// Table
+local Judensense = {
+    Debug = false,
+    Settings = {
+        Target = {
+            Enabled = false,
+            Alerts = false,
+            AutoPrediction = false,
+            AntiGroundShots = false,
+            Method = "FireServer",
+            Resolver = {
+                Enabled = false,
+                Method = "MoveDirection"
+            },
+            Prediction = 0.135,
+            Hitpart = {
+                Hitbox = {},
+                MultiSelectionMode = "Normal"
+            },
+            Checks = {
+                Knocked = false,
+                Wallcheck = false
+            },
+            FovCircle = {
+                Enabled = false,
+                Filled = false,
+                Outline = false,
+                Transparency = 1,
+                Color = Color3.new(255, 255, 255),
+                OutlineColor = Color3.new(0, 0, 0),
+                Radius = 80
+            }, 
+            Hitchance = {
+                Enabled = false,
+                Chance = 100
+            },
+            AutoSelect = {
+                Enabled = false,
+                Type = "Silent Aim"
+            },
+            Jumpoffset = {  
+                Enabled = false,
+                Value = 0
+            },
+            Visuals = {
+                Tracer = {
+                    Enabled = false,
+                    Thickness = 1,
+                    Color = Color3.new(255, 255, 255)
+                },
+                VisualizeMoveDirection = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255),
+                    Outline = false
+                },
+                Dot = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255)
+                },
+                Part = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255),
+                    Shape = "Block",
+                    Material = "ForceField", 
+                    Size = 14
+                },
+                Chams = {
+                    Enabled = false,
+                    FillTransparency = 0.5,
+                    FillColor = Color3.new(255, 255, 255),
+                    OutlineTransparency = 0,
+                    OutlineColor = Color3.new(255, 255, 255)
+                },
+                PredictionChams = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255)
+                },
+            },
+        },
+        Blatant = {
+            Movement = {
+                Bhop = {
+                    Enabled = false,
+                    Speed = 1
+                },
+                CFrameSpeed = {
+                    Enabled = false,
+                    Speed = 1
+                },
+                CFrameFly = {
+                    Enabled = false,
+                    Method = "Velocity",
+                    Speed = 1
+                },
+                NoSlowDown = false
+            },
+            CFrameDesync = {
+                Enabled = false,
+                Type = "Random",
+                Visualize = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255)
+                },
+                Random = {
+                    X = 1,
+                    Y = 1, 
+                    Z = 1
+                },
+                Custom = {
+                    X = 1,
+                    Y = 1, 
+                    Z = 1
+                },
+                TargetStrafe = {
+                    Speed = nil,
+                    Distance = nil,
+                    Height = nil
+                },
+                Angles = {
+                    Enabled = false,
+                    Type = "Random",
+                    Random = {
+                        X = 1,
+                        Y = 1, 
+                        Z = 1
+                    },
+                    Custom = {
+                        X = 1,
+                        Y = 1, 
+                        Z = 1
+                    },
+                },
+            },
+            AntiLock = {
+                Enabled = false,
+                Type = "Custom",
+                Pitch = 0,
+                Yaw = 0,
+                Roll = 0,
+                Multiplier = 1,
+                ShakeValue = 1,
+                AimViewer = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255),
+                    Thickness = 1
+                },
+            },
+        },
+        Visuals = {
+            Local = {
+                BulletTracers = {
+                    Enabled = false, 
+                    Color = Color3.new(255, 255, 255),
+                    Thickness = 1,
+                    Duration = 1,
+                    Type = "Drawing",
+                },
+                BulletImpacts = {
+                    Enabled = false,
+                    Color = Color3.new(255, 255, 255),
+                    Duration = 1,
+                    Size = 0.20,
+                },   
+                Atmosphere = {
+                    Fog = {
+                        Enabled = false,
+                        Color = Color3.new(255, 255, 255),
+                        Start = 1,
+                        End = 1
+                    },
+                    ColorShift = {
+                        Enabled = false,
+                        Bottom = Color3.new(255, 255, 255),
+                        Top = Color3.new(255, 255, 255)
+                    },
+                    Brightness = {
+                        Enabled = false,
+                        BrightnessValue = 1
+                    },
+                    TimeOfDay = {
+                        Enabled = nil,
+                        Time = nil
+                    },
+                },
+                Crosshair = {
+                    Enabled = false,
+                    Size = 20,
+                    Thickness = 1,
+                    Color = Color3.new(255, 255, 255),
+                    Gap = 10,
+                    RotationEnabled = false,
+                    RotationSpeed = 1,
+                    FollowTarget = false
+                },
+            },
+        },
+        Misc = {
+            Exploits = {
+                AntiRPG = false,
+                NoRecoil = false
+            },
+        }
+    },
+    Locals = {
+        Target = nil,
+        TargetBindEnabled = false,
+        BodyPart = "HumanoidRootPart",
+        Jumpoffset = 0,
+        Desync = {},
+        PredictionChamsParts = {},
+        lastAmmo = 0,
+        childrenAdded = 0,
+        Original = {},
+        ammoChangedConnection = nil,
+        Impacts = {},
+        HitChamsParts = {},
+        lastPosition = nil,
+        resolvedVelocity = Vector3.new(),
+        lastUpdateTime = 0
+    },
+    Visuals = {},
+    Connections = {},
+    Threads = {},
+    Hooks = {},
+}
+
+getgenv().taffy_esp = {
+    enabled = false,
+    box = {
+        boxes = false,
+        boxtype = "2D",
+        filled = false,
+        filledColor = Color3.fromRGB(255, 255, 255),
+        outline = false,
+        healthbar = false,
+        healthtext = false,
+        healthtextcolor = Color3.new(255, 255, 255),
+        color1 = Color3.fromRGB(255, 255, 255),
+        color2 = Color3.fromRGB(0, 0, 0),
+        healthbarcolor = Color3.fromRGB(0, 255, 0)
+    },
+    tracer = {
+        enabled = false,
+        unlocktracers = false,
+        color = Color3.fromRGB(255, 255, 255)
+    },
+    name = {
+        enabled = false,
+        outline = false,
+        size = 16.6,
+        font = 2,
+        color = Color3.fromRGB(255, 255, 255)
+    },
+    misc = {
+        teamcheck = false,
+        useteamcolors = false,
+        visibleonly = true,
+        target = false,
+        fade = false,
+        fadespeed = 4
+    },  
+    Toolsshow = {
+        enable = false,
+        outline = false,
+        size = 8,
+        font = 3,
+        color = Color3.fromRGB(255, 255, 255)
+    },
+    Skeletons = {
+        Enabled = false,
+        Color = Color3.new(255, 255, 255)
+    }
+}
+
+local function print(...)
+    if Judensense.Debug then
+        warn(...)
+    end
+end
+
+warn("Table Took: " .. tostring(tick() - MainStartTable .. " seconds To Intialize"))
+
+--// Variables
+local Players, RunService, Client, Workspace, Camera, ViewportSize, AxisX, AxisY, Mouse, Stats, Drawing, ReadFile = game:GetService("Players"), game:GetService("RunService"), game:GetService("Players").LocalPlayer, game:GetService("Workspace"), game:GetService("Workspace").CurrentCamera, game:GetService("Workspace").CurrentCamera.ViewportSize / 2, game:GetService("Workspace").CurrentCamera.ViewportSize.X, game:GetService("Workspace").CurrentCamera.ViewportSize.Y, game:GetService("Players").LocalPlayer:GetMouse(), game:GetService("Stats"), Drawing, readfile
+local Library, Utility, Visuals, Target, MovementUtil, Desync = loadstring(game:HttpGet("https://rentry.co/ugh2dwyb/raw"))(), {}, {}, {}, {}, {}
+
+--// Drawing functions
+local function CreateRenderObject(type)
+    return Drawing.new(type)
+end
+
+local function DestroyRenderObject(renderObject)
+    renderObject:Remove()
+end
+
+local function SetRenderProperty(renderObject, property, value)
+    renderObject[property] = value
+end
+
+local function GetRenderProperty(renderObject, property)
+    return renderObject[property]
+end
+
+local MainStartUtilityFunctions = tick()
+--// Functions
+do --// Utility Functions
+    function Utility:Connection(connectionType, connectionCallback)
+        local connection = connectionType:Connect(connectionCallback)
+        Judensense.Connections[#Judensense.Connections + 1] = connection
+        return connection
+    end
+    --
+    function Utility:ThreadFunction(Func, Name, ...)
+        local FuncWrapper = Name and function()
+            local Passed, Statement = pcall(Func)
+        end or Func
+        local Thread = coroutine.create(FuncWrapper)
+        Judensense.Threads[Name] = Thread
+        coroutine.resume(Thread, ...)
+        return Thread
+    end
+    --
+    function Utility:DisconnectConnection(connection)
+        if connection then
+            connection:Disconnect()
+            for i, conn in ipairs(Judensense.Connections) do
+                if conn == connection then
+                    table.remove(Judensense.Connections, i)
+                    break
+                end
+            end
+        end
+    end
+    --
+    function Utility:Coroutine(func)
+        local cor = coroutine.create(func)
+        coroutine.resume(cor)
+        table.insert(Judensense.Threads, cor)
+        return cor
+    end
+    --
+    function Utility:KillThread(threadName)
+        local threadIndex = table.find(Judensense.Threads, threadName)
+        if threadIndex then
+            local thread = Judensense.Threads[threadIndex]
+    
+            if coroutine.status(thread) == "suspended" then
+                coroutine.kill(thread)
+                table.remove(Judensense.Threads, threadIndex)
+            elseif coroutine.status(thread) == "dead" then
+                return
+            end
+        else
+            return
+        end
+    end
+    --
+    function Utility:Notify(title, text, duration)
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = title,
+            Text = text,
+            Duration = duration,
+        })
+    end
+    --
+    function Utility:CalculateHitChance(Percentage)
+        Percentage = math.floor(Percentage)
+        local chance = math.floor(Random.new().NextNumber(Random.new(), 0, 1) * 100) / 100
+        return chance < Percentage / 100
+    end
+    --
+    function Utility:GetClosestPlayer()
+        local distance = Judensense.Settings.Target.FovCircle.Enabled and Judensense.Settings.Target.FovCircle.Radius or math.huge
+        local closestPlayer
+
+        for Index, Value in pairs(Players:GetPlayers()) do
+            if Value ~= Client and Value.Character and Value.Character:FindFirstChild("Humanoid") and Value.Character.Humanoid.Health > 0 and Value.Character:FindFirstChild("HumanoidRootPart") then
+                if not (Judensense.Settings.Target.Checks.Knocked and Value.Character:FindFirstChild("BodyEffects") and Value.Character.BodyEffects["K.O"].Value == true) then
+                    local pos = Camera:WorldToViewportPoint(Value.Character.PrimaryPart.Position)
+                    local pos2D = Vector2.new(pos.X, pos.Y)
+                    local magnitude = (pos2D - game:GetService("UserInputService"):GetMouseLocation()).Magnitude
+
+                    if Judensense.Settings.Target.Hitchance.Enabled then
+                        local chance = Utility:CalculateHitChance(Judensense.Settings.Target.Hitchance.Chance) 
+                        if not chance then
+                          -- continue
+                        end
+                    end
+
+                    if magnitude < distance then
+                        if not Judensense.Settings.Target.Checks.Wallcheck then
+                            closestPlayer = Value
+                            distance = magnitude
+                        else
+                            local partsObscuring = Camera:GetPartsObscuringTarget({Client.Character.PrimaryPart.Position, Value.Character.PrimaryPart.Position}, {Value.Character})
+
+                            if #partsObscuring == 0 then
+                                closestPlayer = Value
+                                distance = magnitude
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        return closestPlayer
+    end
+
+    function Utility:GetClosestBodyPart(char)
+        local closestPart = nil
+        local closestDistance = math.huge
+        for _, partName in ipairs(Judensense.Settings.Target.Hitpart.Hitbox) do
+            local part = char:FindFirstChild(partName)
+            if part and part:IsA("BasePart") then
+                local screenPos, onScreen = game:GetService("Workspace").CurrentCamera:WorldToScreenPoint(part.Position)
+                if onScreen then
+                    local distance = (Vector2.new(Client:GetMouse().X, Client:GetMouse().Y + 36) - Vector2.new(screenPos.X, screenPos.Y)).Magnitude
+                    if distance < closestDistance then
+                        closestPart = part
+                        closestDistance = distance
+                    end
+                end
+            end
+        end
+
+        if closestPart then
+            return closestPart
+        else
+            return nil
+        end
+    end
+    --
+    function Utility:GetClosestPoint(char)
+        local closestBodyPartName = Utility:GetClosestBodyPart(char)
+        if closestBodyPartName then
+            local part = char:FindFirstChild(closestBodyPartName.Name)
+            if part and part:IsA("BasePart") then
+                local mouseray = Client:GetMouse().UnitRay
+                mouseray = mouseray.Origin + (mouseray.Direction * (part.Position - mouseray.Origin).Magnitude)
+                local point =
+                    (mouseray.Y >= (part.Position - part.Size / 2).Y and mouseray.Y <= (part.Position + part.Size / 2).Y) and
+                        (part.Position + Vector3.new(0, -part.Position.Y + mouseray.Y, 0)) or part.Position
+                local check = RaycastParams.new()
+                check.FilterType = Enum.RaycastFilterType.Whitelist
+                check.FilterDescendantsInstances = {part}
+                local ray = game:GetService("Workspace"):Raycast(mouseray, (point - mouseray), check)
+    
+                if ray then
+                    return ray.Position
+                end
+            end
+        end
+    
+        return Client:GetMouse().Hit.Position
+    end
+
+    function Utility:GetBodyPartOfName(target, name)
+        local bodyPart = target.Character:FindFirstChild(name)
+        return bodyPart
+    end    
+    
+    function Utility:GetGun()
+        for Index, Value in pairs(Client.Character:GetChildren()) do
+            if Value:IsA("Tool") then
+                if Value:FindFirstChild("Ammo") then
+                    return Value
+                end
+            end
+        end
+        return nil
+    end
+
+    function Utility:Rotate(vector, origin, angle)
+        local cosA = math.cos(angle)
+        local sinA = math.sin(angle)
+        local x = vector.x - origin.x
+        local y = vector.y - origin.y
+        local newX = x * cosA - y * sinA
+        local newY = x * sinA + y * cosA
+        return Vector2.new(newX + origin.x, newY + origin.y)
+    end
+
+
+    function Utility:Impact(position)
+        local size = Judensense.Settings.Visuals.Local.BulletImpacts.Size
+        local impactInfo = {
+            Position = position,
+            Lines = {} 
+        }
+        local function CreateOrUpdateLine(line, p1, p2)
+            if not line then
+                line = Drawing.new("Line")
+                line.Visible = true
+                line.Color = Judensense.Settings.Visuals.Local.BulletImpacts.Color
+                table.insert(impactInfo.Lines, line)
+            end
+            line.From = p1
+            line.To = p2
+        end
+        local function UpdateBox()
+            local camera = workspace.CurrentCamera
+            local vertices = {
+                Vector3.new(Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(-Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(-Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(-Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size),
+                Vector3.new(-Judensense.Settings.Visuals.Local.BulletImpacts.Size, Judensense.Settings.Visuals.Local.BulletImpacts.Size, -Judensense.Settings.Visuals.Local.BulletImpacts.Size)
+            }
+            for i = 1, 4 do
+                local j = i % 4 + 1
+                local p1 = camera:WorldToViewportPoint(position + vertices[i])
+                local p2 = camera:WorldToViewportPoint(position + vertices[j])
+                CreateOrUpdateLine(impactInfo.Lines[i], p1, p2)
+    
+                p1 = camera:WorldToViewportPoint(position + vertices[i + 4])
+                p2 = camera:WorldToViewportPoint(position + vertices[j + 4])
+                CreateOrUpdateLine(impactInfo.Lines[i + 4], p1, p2)
+    
+                p1 = camera:WorldToViewportPoint(position + vertices[i])
+                p2 = camera:WorldToViewportPoint(position + vertices[i + 4])
+                CreateOrUpdateLine(impactInfo.Lines[i + 8], p1, p2)
+            end
+        end
+        local startTime = tick()
+        local connection
+        connection = game:GetService("RunService").RenderStepped:Connect(function()
+            UpdateBox()
+            local elapsedTime = tick() - startTime
+            if elapsedTime >= Judensense.Settings.Visuals.Local.BulletImpacts.Duration then
+                connection:Disconnect()
+                for _, line in ipairs(impactInfo.Lines) do
+                    line:Remove()
+                end
+                for i, data in ipairs(Judensense.Locals.Impacts) do
+                    if data == impactInfo then
+                        table.remove(Judensense.Locals.Impacts, i)
+                        break
+                    end
+                end
+            else
+                local alpha = 1 - (elapsedTime / Judensense.Settings.Visuals.Local.BulletImpacts.Duration)
+                for _, line in ipairs(impactInfo.Lines) do
+                    line.Transparency = alpha
+                end
+            end
+        end)
+        table.insert(Judensense.Locals.Impacts, impactInfo)
+    end
+
+    function Utility:Beam(startPos, endPos, beamColor, delay)
+        delay = delay or 2
+        local normalizedColor = Color3.new(
+            math.clamp(beamColor.R, 0, 1),
+            math.clamp(beamColor.G, 0, 1),
+            math.clamp(beamColor.B, 0, 1)
+        )
+        local colorSequence = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, normalizedColor),
+            ColorSequenceKeypoint.new(1, normalizedColor),
+        })
+        local Part = Instance.new("Part", game.Workspace)
+        Part.Size = Vector3.new(0, 0, 0)
+        Part.Massless = true
+        Part.Transparency = 0
+        Part.CanCollide = false
+        Part.Position = startPos
+        Part.Anchored = true
+        local Attachment = Instance.new("Attachment", Part)
+        local Part2 = Instance.new("Part", game.Workspace)
+        Part2.Size = Vector3.new(0, 0, 0)
+        Part2.Transparency = 0
+        Part2.CanCollide = false
+        Part2.Position = endPos
+        Part2.Anchored = true
+        Part2.Material = Enum.Material.ForceField
+        Part2.Color = normalizedColor
+        Part2.Massless = true
+        local Attachment2 = Instance.new("Attachment", Part2)
+        local Beam = Instance.new("Beam", Part)
+        Beam.FaceCamera = true
+        Beam.Color = colorSequence
+        Beam.Attachment0 = Attachment
+        Beam.Attachment1 = Attachment2
+        Beam.LightEmission = 6
+        Beam.LightInfluence = 1
+        Beam.Width0 = 2
+        Beam.Width1 = 3
+        Beam.Texture = "http://www.roblox.com/asset/?id=9150663556"
+        Beam.TextureSpeed = 2
+        Beam.TextureLength = 1
+        task.wait(delay)
+        Part:Destroy()
+        Part2:Destroy()
+    end
+    
+    function Utility:BeamDrawing(v1, v2)
+        local line = Drawing.new("Line")
+        line.Visible = true
+        line.Color = Judensense.Settings.Visuals.Local.BulletTracers.Color
+        line.Thickness = Judensense.Settings.Visuals.Local.BulletTracers.Thickness
+
+        local function UpdateLine()
+            local startPos = workspace.CurrentCamera:WorldToViewportPoint(v1)
+            local endPos = workspace.CurrentCamera:WorldToViewportPoint(v2)
+            local isVisible = startPos.Z > 0 and endPos.Z > 0
+            if isVisible then
+                line.From = Vector2.new(startPos.X, startPos.Y)
+                line.To = Vector2.new(endPos.X, endPos.Y)
+            else
+                line.Visible = false
+            end
+        end
+        local startTime = tick()
+        local connection
+        connection = RunService.RenderStepped:Connect(function()
+            UpdateLine()
+
+            local elapsedTime = tick() - startTime
+            if elapsedTime >= Judensense.Settings.Visuals.Local.BulletTracers.Duration then
+                connection:Disconnect()
+                line:Remove()
+            else
+                local alpha = 1 - (elapsedTime / Judensense.Settings.Visuals.Local.BulletTracers.Duration)
+                line.Transparency = alpha
+            end
+        end)
+    end
+
+
+    --// Unreadable pasted esp
+     
+end
+
+warn("Utility Functions Took: " .. tostring(tick() - MainStartUtilityFunctions .. " seconds To Intialize"))
+
+
+local MainStartESP = tick()
+local Esp = loadstring(game:HttpGet("https://pastebin.com/raw/n8Ezn15h"))()
+
+for _, Player in pairs(game:GetService("Players"):GetChildren()) do
+    Esp:Esp(Player)
+end
+
+Players.PlayerAdded:Connect(function(v)
+    Esp:Esp(v)
+end)
+
+warn("Esp Took: " .. tostring(tick() - MainStartESP .. " seconds"))
+
+
+--// Drawing
+task.spawn(function()
+    Judensense.Visuals["TargetTracer"] = CreateRenderObject("Line")
+    SetRenderProperty(Judensense.Visuals["TargetTracer"], "Thickness", 1)
+    SetRenderProperty(Judensense.Visuals["TargetTracer"], "Transparency", 1)
+    SetRenderProperty(Judensense.Visuals["TargetTracer"], "Color", Color3.new(255, 255, 255))
+    SetRenderProperty(Judensense.Visuals["TargetTracer"], "Visible", false)
+    Judensense.Visuals["TargetTargetPart"] = Instance.new("Part") 
+    Judensense.Visuals["TargetTargetPart"].Parent = Workspace
+    Judensense.Visuals["TargetTargetPart"].Anchored = true 
+    Judensense.Visuals["TargetTargetPart"].CanCollide = false 
+    Judensense.Visuals["TargetTargetPart"].Shape = Enum.PartType.Block 
+    Judensense.Visuals["TargetTargetPart"].Color = Color3.new(255, 255, 255)
+    Judensense.Visuals["TargetTargetPart"].CanTouch = false
+    Judensense.Visuals["MoveDirectionVisualizer"] = CreateRenderObject("Text")
+    SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Size", 16)
+    SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Outline", false)
+    SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Color", Color3.new(255, 255, 255))
+    Judensense.Visuals["TargetChams"] = Instance.new("Highlight")
+    Judensense.Visuals["TargetChams"].Parent = nil
+    Judensense.Visuals["TargetChams"].FillColor = Color3.new(255, 255, 255)
+    Judensense.Visuals["TargetChams"].OutlineColor = Color3.new(255, 255, 255)
+    Judensense.Visuals["TargetChams"].OutlineTransparency = 0
+    Judensense.Visuals["TargetChams"].FillTransparency = 0.5
+    Judensense.Visuals["DrawingDot"] = CreateRenderObject("Circle")
+    SetRenderProperty(Judensense.Visuals["DrawingDot"], "Radius", 6)
+    SetRenderProperty(Judensense.Visuals["DrawingDot"], "Filled", true)
+    SetRenderProperty(Judensense.Visuals["DrawingDot"], "Color", Color3.new(255, 255, 255))
+    Judensense.Visuals["FovCircle"] = CreateRenderObject("Circle")
+    SetRenderProperty(Judensense.Visuals["FovCircle"], "Color", Color3.new(255, 255, 255))
+    SetRenderProperty(Judensense.Visuals["FovCircle"], "Transparency", 0)
+    SetRenderProperty(Judensense.Visuals["FovCircle"], "Filled", false)
+    SetRenderProperty(Judensense.Visuals["FovCircle"], "Visible", false)
+    SetRenderProperty(Judensense.Visuals["FovCircle"], "Radius", 80)
+    SetRenderProperty(Judensense.Visuals["FovCircle"], "Thickness", 1)
+    Judensense.Visuals["FovCircleOutline"] = CreateRenderObject("Circle")
+    SetRenderProperty(Judensense.Visuals["FovCircleOutline"], "Color", Color3.new(0, 0, 0))
+    SetRenderProperty(Judensense.Visuals["FovCircleOutline"], "Transparency", 0)
+    SetRenderProperty(Judensense.Visuals["FovCircleOutline"], "Filled", false)
+    SetRenderProperty(Judensense.Visuals["FovCircleOutline"], "Visible", false)
+    SetRenderProperty(Judensense.Visuals["FovCircleOutline"], "Radius", 80)
+    SetRenderProperty(Judensense.Visuals["FovCircleOutline"], "Thickness", 2)
+    Judensense.Visuals["LeftLine"] = CreateRenderObject("Line")
+    SetRenderProperty(Judensense.Visuals["LeftLine"], "From", Vector2.new(0, AxisY))
+    SetRenderProperty(Judensense.Visuals["LeftLine"], "To", Vector2.new(AxisX * 2, AxisY))
+    SetRenderProperty(Judensense.Visuals["LeftLine"], "Thickness", 1)
+    SetRenderProperty(Judensense.Visuals["LeftLine"], "Transparency", 0)
+    SetRenderProperty(Judensense.Visuals["LeftLine"], "Visible", false)
+    Judensense.Visuals["RightLine"] = CreateRenderObject("Line")
+    SetRenderProperty(Judensense.Visuals["RightLine"], "From", Vector2.new(AxisX, AxisY))
+    SetRenderProperty(Judensense.Visuals["RightLine"], "To", Vector2.new(AxisX * 3, AxisY))
+    SetRenderProperty(Judensense.Visuals["RightLine"], "Thickness", 1)
+    SetRenderProperty(Judensense.Visuals["RightLine"], "Transparency", 0)
+    SetRenderProperty(Judensense.Visuals["RightLine"], "Visible", false)
+    Judensense.Visuals["TopLine"] = CreateRenderObject("Line")
+    SetRenderProperty(Judensense.Visuals["TopLine"], "From", Vector2.new(AxisX, 0))
+    SetRenderProperty(Judensense.Visuals["TopLine"], "To", Vector2.new(AxisX, AxisY * 2))
+    SetRenderProperty(Judensense.Visuals["TopLine"], "Thickness", 1)
+    SetRenderProperty(Judensense.Visuals["TopLine"], "Transparency", 0)
+    SetRenderProperty(Judensense.Visuals["TopLine"], "Visible", false)
+    Judensense.Visuals["BottomLine"] = CreateRenderObject("Line")
+    SetRenderProperty(Judensense.Visuals["BottomLine"], "From", Vector2.new(AxisX, AxisY))
+    SetRenderProperty(Judensense.Visuals["BottomLine"], "To", Vector2.new(AxisX, AxisY * 3))
+    SetRenderProperty(Judensense.Visuals["BottomLine"], "Thickness", 1)
+    SetRenderProperty(Judensense.Visuals["BottomLine"], "Transparency", 0)
+    SetRenderProperty(Judensense.Visuals["BottomLine"], "Visible", false)
+    Judensense.Visuals["R6Dummy"] = game:GetObjects("rbxassetid://9474737816")[1]; Judensense.Visuals["R6Dummy"].Head.Face:Destroy(); for i, v in pairs(Judensense.Visuals["R6Dummy"]:GetChildren()) do v.Transparency = v.Name == "HumanoidRootPart" and 1 or 0.70; v.Material = "Neon"; v.Color = Color3.fromRGB(255, 255, 255); v.CanCollide = false; v.Anchored = false end
+end)
+--
+local MainDrawingFunctions = tick()
+--
+
+Utility:Coroutine(function()
+    function Visuals:UpdateTargetTracer(target, color, thickness, jumpoffset, jumpoffsetenabled, resolver, resolvermethod)
+        local Vector, Visible = Camera:worldToViewportPoint(target.Character:FindFirstChild("HumanoidRootPart").Position)
+        if Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target then
+            if Visible then     
+                if not Judensense.Visuals["TargetTracerPart"] then
+                    Judensense.Visuals["TargetTracerPart"] = Instance.new("Part")
+                    Judensense.Visuals["TargetTracerPart"].Size = Vector3.new(0, 0, 0)
+                    Judensense.Visuals["TargetTracerPart"].Transparency = 1
+                    Judensense.Visuals["TargetTracerPart"].Anchored = true
+                    Judensense.Visuals["TargetTracerPart"].CanCollide = false
+                    Judensense.Visuals["TargetTracerPart"].Parent = workspace
+                end
+                if Judensense.Visuals["TargetTracerPart"] and Judensense.Locals.BodyPart.Velocity and tonumber(Judensense.Settings.Target.Prediction) then
+                    if resolver and resolvermethod == "MoveDirection" then
+                        Judensense.Visuals["TargetTracerPart"].CFrame = CFrame.new(Judensense.Locals.BodyPart.Position + (Judensense.Locals.Target.Character.Humanoid.MoveDirection * tonumber(Judensense.Settings.Target.Prediction) * Judensense.Locals.Target.Character.Humanoid.WalkSpeed))
+                    else
+                        Judensense.Visuals["TargetTracerPart"].CFrame = CFrame.new(Judensense.Locals.BodyPart.Position + (Judensense.Locals.BodyPart.Velocity * tonumber(Judensense.Settings.Target.Prediction)))
+                    end
+                end
+                if jumpoffsetenabled then
+                    Judensense.Visuals["TargetTracerPart"].CFrame = CFrame.new(Judensense.Visuals["TargetTracerPart"].CFrame.Position.X, Judensense.Visuals["TargetTracerPart"].CFrame.Position.Y + jumpoffset, Judensense.Visuals["TargetTracerPart"].CFrame.Position.Z)
+                end
+                SetRenderProperty(Judensense.Visuals["TargetTracer"], "Visible", true)
+                SetRenderProperty(Judensense.Visuals["TargetTracer"], "Color", color)
+                SetRenderProperty(Judensense.Visuals["TargetTracer"], "From", Vector2.new(Mouse.X, Mouse.Y + 36))
+                SetRenderProperty(Judensense.Visuals["TargetTracer"], "To", game:GetService("Workspace").CurrentCamera:worldToViewportPoint(Judensense.Visuals["TargetTracerPart"].CFrame.Position))
+                SetRenderProperty(Judensense.Visuals["TargetTracer"], "Thickness", thickness)
+            else
+                SetRenderProperty(Judensense.Visuals["TargetTracer"], "Visible", false)
+                if Judensense.Visuals["TargetTracerPart"] then
+                    Judensense.Visuals["TargetTracerPart"]:Destroy()
+                    Judensense.Visuals["TargetTracerPart"] = nil
+                end
+            end
+        end
+    end
+    --
+    function Visuals:UpdateMoveDirectionVisualizer(target, color, outline)
+        local Vector, Visible = Camera:worldToViewportPoint(target.Character.HumanoidRootPart.Position)
+        if Visible then
+            SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Visible", true)
+            SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Text", string.format("%.1f, %.1f, %.1f", target.Character.Humanoid.MoveDirection.x, target.Character.Humanoid.MoveDirection.y, target.Character.Humanoid.MoveDirection.z))
+            SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Outline", outline)
+            SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Color", color)
+            SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Position", Vector2.new(Vector.X - 30, Vector.Y))
+        else
+            SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Visible", false)
+        end
+    end
+    --
+    function Visuals:UpdateTargetDot(target, jumpoffset, jumpoffsetenabled, resolver, resolvermethod, color)
+        local Vector, Visible = Camera:worldToViewportPoint(target.Character.HumanoidRootPart.Position)
+        if Visible then
+            if not Judensense.Visuals["TargetDotPart"] then
+                Judensense.Visuals["TargetDotPart"] = Instance.new("Part")
+                Judensense.Visuals["TargetDotPart"].Size = Vector3.new(0, 0, 0)
+                Judensense.Visuals["TargetDotPart"].Transparency = 1
+                Judensense.Visuals["TargetDotPart"].Anchored = true
+                Judensense.Visuals["TargetDotPart"].CanCollide = false
+                Judensense.Visuals["TargetDotPart"].Parent = workspace
+            end
+            local dotPosition
+            if resolver and resolvermethod == "MoveDirection" then
+                dotPosition = Judensense.Locals.BodyPart.Position + (Judensense.Locals.Target.Character.Humanoid.MoveDirection * tonumber(Judensense.Settings.Target.Prediction) * Judensense.Locals.Target.Character.Humanoid.WalkSpeed)
+            else
+                dotPosition = Judensense.Locals.BodyPart.Position + (Judensense.Locals.BodyPart.Velocity * tonumber(Judensense.Settings.Target.Prediction))
+            end
+            if jumpoffsetenabled then
+                dotPosition = Vector3.new(dotPosition.X, dotPosition.Y + jumpoffset, dotPosition.Z)
+            end
+            Judensense.Visuals["TargetDotPart"].CFrame = CFrame.new(dotPosition)
+            SetRenderProperty(Judensense.Visuals["DrawingDot"], "Color", color)
+            SetRenderProperty(Judensense.Visuals["DrawingDot"], "Visible", true)
+            SetRenderProperty(Judensense.Visuals["DrawingDot"], "Position", Vector2.new(game:GetService("Workspace").CurrentCamera:worldToViewportPoint(Judensense.Visuals["TargetDotPart"].Position).X, game:GetService("Workspace").CurrentCamera:worldToViewportPoint(Judensense.Visuals["TargetDotPart"].Position).Y))
+        else
+            SetRenderProperty(Judensense.Visuals["DrawingDot"], "Visible", false)
+            if Judensense.Visuals["TargetDotPart"] then
+                Judensense.Visuals["TargetDotPart"]:Destroy()
+                Judensense.Visuals["TargetDotPart"] = nil
+            end
+        end
+    end
+    --
+    function Visuals:UpdateTargetPart(target, prediction, bodypart, resolver, resolvermethod, shape, color, size, material)
+        if resolver and resolvermethod == "MoveDirection" then
+            Judensense.Visuals["TargetTargetPart"].CFrame = CFrame.new(bodypart.Position + (target.Character.Humanoid.MoveDirection * prediction * target.Character.Humanoid.WalkSpeed))
+        else
+            Judensense.Visuals["TargetTargetPart"].CFrame = CFrame.new(bodypart.Position + (bodypart.Velocity * prediction))
+        end
+        Judensense.Visuals["TargetTargetPart"].Transparency = 0.3
+        if shape == "Block" then
+            Judensense.Visuals["TargetTargetPart"].Shape = Enum.PartType.Block
+        elseif shape == "Cylinder" then
+            Judensense.Visuals["TargetTargetPart"].Shape = Enum.PartType.Cylinder
+        elseif shape == "Ball" then
+            Judensense.Visuals["TargetTargetPart"].Shape = Enum.PartType.Ball
+        end
+        if material == "ForceField" then
+            Judensense.Visuals["TargetTargetPart"].Material = Enum.Material.ForceField
+        elseif material == "Neon" then
+            Judensense.Visuals["TargetTargetPart"].Material = Enum.Material.Neon
+        elseif material == "Plastic" then
+            Judensense.Visuals["TargetTargetPart"].Material = Enum.Material.Plastic
+        end
+        Judensense.Visuals["TargetTargetPart"].Color = color
+        Judensense.Visuals["TargetTargetPart"].Size = Vector3.new(size, size, size)
+    end
+end)
+--
+warn("Drawing Elements Took: " .. tostring(tick() - MainDrawingFunctions .. " seconds To Intialize"))
+--
+task.spawn(function()
+    function Visuals:UpdatePreditionChams(targetenabled, targetbindenabled, target, preditionchamsenabled, prediction, partstable, color)
+        if targetenabled and targetbindenabled and target and preditionchamsenabled then
+            for _, hitbox in pairs(target.Character:GetChildren()) do
+                if hitbox:IsA("BasePart") and hitbox.Name ~= "HumanoidRootPart" then
+                    local part = partstable[hitbox.Name]
+                    if not part then
+                        part = Instance.new("Part")
+                        part.Name = hitbox.Name
+                        part.Parent = game:GetService("Workspace")
+                        part.Material = Enum.Material.SmoothPlastic
+                        part.Color = color
+                        part.Transparency = 0
+                        part.Size = hitbox.Size
+                        partstable[hitbox.Name] = part
+                    end
+                    
+                    local predictedPosition = target.Character[hitbox.Name].Position + (target.Character[hitbox.Name].Velocity * prediction)
+                    local predictedRotation = target.Character[hitbox.Name].CFrame - target.Character[hitbox.Name].Position
+                    part.Color = color
+                    part.CFrame = CFrame.new(predictedPosition, predictedPosition + predictedRotation.LookVector)
+                    part.Anchored = true
+                    part.CanCollide = false
+                end
+            end
+        else
+            for _, part in pairs(partstable) do
+                if part:IsA("BasePart") then
+                    part:Destroy()
+                end
+            end
+            partstable = {} 
+        end
+    end
+    --
+    function Target:UpdateBodyPart(mode, target, targetenabled)
+        if target and targetenabled then
+            local selectedBodyPart
+            if mode == "Normal" then
+                local bodyPartName = Judensense.Settings.Target.Hitpart.Hitbox[1]
+                selectedBodyPart = Utility:GetBodyPartOfName(target, bodyPartName)
+                if selectedBodyPart and not selectedBodyPart:IsA("BasePart") then
+                    selectedBodyPart = nil
+                end
+            elseif mode == "Random" then
+                local randomIndex = math.random(1, #Judensense.Settings.Target.Hitpart.Hitbox)
+                local bodyPartName = Judensense.Settings.Target.Hitpart.Hitbox[randomIndex]
+                selectedBodyPart = Utility:GetBodyPartOfName(target, bodyPartName)
+                if selectedBodyPart and not selectedBodyPart:IsA("BasePart") then
+                    selectedBodyPart = nil
+                end
+            elseif mode == "Closest Body Part" then
+                selectedBodyPart = Utility:GetClosestBodyPart(target.Character)
+                if selectedBodyPart and not selectedBodyPart:IsA("BasePart") then
+                    selectedBodyPart = nil
+                end
+            elseif mode == "Closest Point" then
+                if not ClosestPointPart then
+                    ClosestPointPart = Instance.new("Part")
+                    ClosestPointPart.Anchored = true
+                    ClosestPointPart.CanCollide = false
+                    ClosestPointPart.Transparency = 1
+                    ClosestPointPart.Name = "ClosestPointPart"
+                    ClosestPointPart.Size = Vector3.new(0, 0, 0)
+                    ClosestPointPart.Parent = game:GetService("Workspace")
+                end
+                local bodypart = Utility:GetClosestBodyPart(target.Character)
+                local closestPoint = Utility:GetClosestPoint(target.Character)
+                ClosestPointPart.Position = closestPoint
+                ClosestPointPart.Velocity = bodypart.Velocity
+                selectedBodyPart = ClosestPointPart
+            end
+            if selectedBodyPart and selectedBodyPart:IsA("BasePart") then
+                Judensense.Locals.BodyPart = selectedBodyPart
+                print("BodyPart Set:", Judensense.Locals.BodyPart)
+            else
+                print("BodyPart Not Set or Invalid Type")
+            end
+        else
+            print("Invalid Target or Target not enabled")
+        end
+    end
+    --
+    function Target:AutoSelectUpdate()
+        if Judensense.Settings.Target.AutoSelect.Enabled then
+            if Judensense.Settings.Target.AutoSelect.Type == "Silent Aim" and Judensense.Settings.Target.Enabled then
+                local newnigger = Utility:GetClosestPlayer()
+                if newnigger and newnigger.Character then
+                    Judensense.Locals.TargetBindEnabled = true
+                    Judensense.Locals.Target = newnigger
+                else
+                    Judensense.Locals.TargetBindEnabled = false
+                    Judensense.Locals.Target = nil
+                end
+            elseif Judensense.Settings.Target.AutoSelect.Type == "Rage Bot" and Judensense.Settings.Target.Enabled then
+                local closestDistance = math.huge
+                local chosenTarget = nil
+                for _, player in pairs(game:GetService("Players"):GetPlayers()) do
+                    if player ~= Client then
+                        local hasKO = player.Character.BodyEffects["K.O"].value
+                        local hasFF = player.Character:FindFirstChild("ForceField_TESTING")
+                        local isGrabbed = player.Character.BodyEffects.Grabbed.value
+                        if not isGrabbed ~= nil and isGrabbed ~= "" and not hasKO and not hasFF then
+                            local playerPosition = player.Character.HumanoidRootPart.Position
+                            local localPosition = Client.Character.HumanoidRootPart.Position
+                            local distance = (playerPosition - localPosition).Magnitude
+                
+                            if distance < closestDistance then
+                                closestDistance = distance
+                                chosenTarget = player
+                            end
+                        end
+                    end
+                end
+                if chosenTarget then
+                    Judensense.Locals.Target = chosenTarget
+                    Judensense.Locals.TargetBindEnabled = true
+                end
+            end
+        end
+    end
+    --
+    function Target:UpdateJumpOffset(target, targetenabled, targetbindenabled, jumpoffset, targetjumpoffset, jumpoffsetenabled)
+        if target and targetenabled and targetbindenabled and jumpoffsetenabled and target.Character.Humanoid:GetState() == Enum.HumanoidStateType.Physics and (target.Character.Humanoid:GetState() == Enum.HumanoidStateType.Jumping or target.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall or target.Character.Humanoid:GetState() == Enum.HumanoidStateType.Freefall) then
+            targetjumpoffset = jumpoffset
+        else
+            targetjumpoffset = 0
+        end
+    end
+    --
+    function Target:AntiGroundShots(target, targetenabled, targetbindenabled, bodypart, antigroundshotsenabled)
+        if targetenabled and target and targetbindenabled and target and target.Character and target.Character:FindFirstChild("Humanoid") and antigroundshotsenabled then 
+            if target.Character:FindFirstChild("Humanoid") then
+                local TargetVel = target.Character:FindFirstChild(bodypart)
+                if target.Character:FindFirstChild("Humanoid"):GetState() == Enum.HumanoidStateType.Physics and (target.Character:FindFirstChild("Humanoid"):GetState() == Enum.HumanoidStateType.Jumping or target.Character:FindFirstChild("Humanoid"):GetState() == Enum.HumanoidStateType.Freefall or target.Character:FindFirstChild("Humanoid"):GetState():GetState() == Enum.HumanoidStateType.Freefall) then
+                    if TargetVel then
+                        local newVelocity = Vector3.new(TargetVel.Velocity.X, math.abs(TargetVel.Velocity.Y * 0.4), TargetVel.Velocity.Z)
+                        TargetVel.Velocity = newVelocity
+                        TargetVel.AssemblyLinearVelocity = newVelocity
+                        if Judensense.Settings.Target.Visuals.Tracer.Enabled then
+                            Judensense.Visuals["TargetPart"].CFrame = Judensense.Visuals["TargetPart"].CFrame + Vector3.new(0, newVelocity, 0)
+                        end
+                        if Judensense.Settings.Target.Visuals.Dot.Enabled then
+                            Judensense.Visuals["TargetPart"].CFrame = Judensense.Visuals["TargetPart"].CFrame + Vector3.new(0, newVelocity, 0)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
+
+--
+local MainFunctions = tick()
+Utility:Connection(RunService.RenderStepped, function()
+    if Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target and Judensense.Settings.Target.Visuals.Tracer.Enabled and Judensense.Locals.BodyPart then
+        Utility:ThreadFunction(Visuals:UpdateTargetTracer(Judensense.Locals.Target, Judensense.Settings.Target.Visuals.Tracer.Color, Judensense.Settings.Target.Visuals.Tracer.Thickness, Judensense.Locals.Jumpoffset, Judensense.Settings.Target.Jumpoffset.Enabled, Judensense.Settings.Target.Resolver.Enabled, Judensense.Settings.Target.Resolver.Method), "0x01") 
+    else
+        SetRenderProperty(Judensense.Visuals["TargetTracer"], "Visible", false)
+        Utility:KillThread("0x01")
+        if Judensense.Visuals["TargetTracerPart"] then
+            Judensense.Visuals["TargetTracerPart"]:Destroy()
+            Judensense.Visuals["TargetTracerPart"] = nil
+        end
+    end
+    if Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target and Judensense.Settings.Target.Enabled then
+        Utility:ThreadFunction(Target:UpdateBodyPart(Judensense.Settings.Target.Hitpart.MultiSelectionMode, Judensense.Locals.Target, Judensense.Locals.TargetBindEnabled, Judensense.Settings.Target.Resolver.Enabled, Judensense.Settings.Target.Resolver.Method, tonumber(Judensense.Settings.Target.Prediction)), "2x01")
+    else
+        Utility:KillThread("2x01")
+    end
+    if Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target and Judensense.Settings.Target.Visuals.Dot.Enabled then
+        Utility:ThreadFunction(Visuals:UpdateTargetDot(Judensense.Locals.Target, Judensense.Locals.Jumpoffset, Judensense.Settings.Target.Jumpoffset.Enabled, Judensense.Settings.Target.Resolver.Enabled, Judensense.Settings.Target.Resolver.Method, Judensense.Settings.Target.Visuals.Tracer.Color), "3x01")
+    else
+        Utility:KillThread("3x01")
+        SetRenderProperty(Judensense.Visuals["DrawingDot"], "Visible", false)
+        if Judensense.Visuals["TargetDotPart"] then
+            Judensense.Visuals["TargetDotPart"]:Destroy()
+            Judensense.Visuals["TargetDotPart"] = nil
+        end
+    end
+    if Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target and Judensense.Settings.Target.Visuals.VisualizeMoveDirection.Enabled then
+        Utility:ThreadFunction(Visuals:UpdateMoveDirectionVisualizer(Judensense.Locals.Target, Judensense.Settings.Target.Visuals.VisualizeMoveDirection.Color, Judensense.Settings.Target.Visuals.VisualizeMoveDirection.Outline), "4x01")
+    else
+        Utility:KillThread("4x01")
+        SetRenderProperty(Judensense.Visuals["MoveDirectionVisualizer"], "Visible", false)
+    end
+    if Judensense.Settings.Target.Visuals.Part.Enabled and Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled then
+        Utility:ThreadFunction(Visuals:UpdateTargetPart(Judensense.Locals.Target, tonumber(Judensense.Settings.Target.Prediction), Judensense.Locals.BodyPart, Judensense.Settings.Target.Resolver.Enabled, Judensense.Settings.Target.Resolver.Method, Judensense.Settings.Target.Visuals.Part.Shape, Judensense.Settings.Target.Visuals.Part.Color, Judensense.Settings.Target.Visuals.Part.Size, Judensense.Settings.Target.Visuals.Part.Material), "5x01")
+    else
+        Utility:KillThread("5x01")
+        Judensense.Visuals["TargetTargetPart"].CFrame = CFrame.new(300000, 3000000, 300000)
+    end
+    if Judensense.Settings.Target.Enabled and Judensense.Settings.Target.Visuals.Chams.Enabled and Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target then
+        Judensense.Visuals["TargetChams"].Parent = Judensense.Locals.Target.Character
+        Judensense.Visuals["TargetChams"].FillColor = Judensense.Settings.Target.Visuals.Chams.FillColor
+        Judensense.Visuals["TargetChams"].OutlineColor = Judensense.Settings.Target.Visuals.Chams.OutlineColor
+        Judensense.Visuals["TargetChams"].FillTransparency = Judensense.Settings.Target.Visuals.Chams.FillTransparency
+        Judensense.Visuals["TargetChams"].OutlineTransparency = Judensense.Settings.Target.Visuals.Chams.OutlineTransparency
+    else
+        Judensense.Visuals["TargetChams"].Parent = nil
+    end
+
+    if Judensense.Settings.Target.Enabled and Judensense.Settings.Target.Visuals.PredictionChams.Enabled and Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target then
+        Utility:ThreadFunction(Visuals:UpdatePreditionChams(Judensense.Settings.Target.Enabled, Judensense.Locals.TargetBindEnabled, Judensense.Locals.Target, Judensense.Settings.Target.Visuals.PredictionChams.Enabled, tonumber(Judensense.Settings.Target.Prediction), Judensense.Locals.PredictionChamsParts, Judensense.Settings.Target.Visuals.PredictionChams.Color, "6x01"))
+    else
+        for _, part in pairs(Judensense.Locals.PredictionChamsParts) do
+            if part:IsA("BasePart") then
+                part:Destroy()
+            end
+        end
+        tonumber(Judensense.Settings.Target.Prediction)ChamsParts = {} 
+        Utility:KillThread("6x01")
+    end
+end)
+--
+Utility:Connection(RunService.RenderStepped, function()
+    if Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target and Judensense.Settings.Target.Jumpoffset.Enabled then
+        Utility:ThreadFunction(Target:UpdateJumpOffset(Judensense.Locals.Target, Judensense.Settings.Target.Enabled, Judensense.Locals.TargetBindEnabled, Judensense.Settings.Target.Jumpoffset.Value, Judensense.Locals.Jumpoffset, Judensense.Settings.Target.Jumpoffset.Enabled), "7x01")
+    else
+        Utility:KillThread("7x01")
+    end
+    if Judensense.Settings.Target.Enabled and Judensense.Settings.Target.AutoSelect.Enabled then
+        Utility:ThreadFunction(Target:AutoSelectUpdate(), "8x01")
+    else
+        Utility:KillThread("8x01")
+    end
+end)
+--
+local rotationAngle = 0
+Utility:Connection(RunService.RenderStepped, function()
+    local Real_Size = Judensense.Settings.Visuals.Local.Crosshair.Size / 2
+    local mouseX, mouseY
+    if Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target and Judensense.Locals.BodyPart then
+        local Vector, onScreen = game:GetService("Workspace").CurrentCamera:WorldToViewportPoint(Judensense.Locals.BodyPart.Position)
+        if onScreen and Judensense.Settings.Visuals.Local.Crosshair.FollowTarget then
+            mouseX, mouseY = game:GetService("Workspace").CurrentCamera:WorldToViewportPoint(Judensense.Locals.BodyPart.Position).X, game:GetService("Workspace").CurrentCamera:WorldToViewportPoint(Judensense.Locals.BodyPart.Position).Y
+        end
+    end
+    if not mouseX or not mouseY then
+        mouseX, mouseY = Client:GetMouse().X, Client:GetMouse().Y + 36
+    end
+    local gap = Judensense.Settings.Visuals.Local.Crosshair.Gap
+    if Judensense.Settings.Visuals.Local.Crosshair.RotationEnabled then
+        rotationAngle = rotationAngle + Judensense.Settings.Visuals.Local.Crosshair.RotationSpeed
+    else
+        rotationAngle = 0
+    end
+    Judensense.Visuals["LeftLine"].Visible = Judensense.Settings.Visuals.Local.Crosshair.Enabled
+    Judensense.Visuals["LeftLine"].Color = Judensense.Settings.Visuals.Local.Crosshair.Color
+    Judensense.Visuals["LeftLine"].Thickness = Judensense.Settings.Visuals.Local.Crosshair.Thickness
+    Judensense.Visuals["LeftLine"].Transparency = 1
+    Judensense.Visuals["LeftLine"].From = Vector2.new(mouseX + gap, mouseY)
+    Judensense.Visuals["LeftLine"].To = Vector2.new(mouseX + Real_Size, mouseY)
+    if Judensense.Settings.Visuals.Local.Crosshair.RotationEnabled then
+        Judensense.Visuals["LeftLine"].From = Utility:Rotate(Judensense.Visuals["LeftLine"].From, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+        Judensense.Visuals["LeftLine"].To = Utility:Rotate(Judensense.Visuals["LeftLine"].To, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+    end
+    Judensense.Visuals["RightLine"].Visible = Judensense.Settings.Visuals.Local.Crosshair.Enabled
+    Judensense.Visuals["RightLine"].Color = Judensense.Settings.Visuals.Local.Crosshair.Color
+    Judensense.Visuals["RightLine"].Thickness = Judensense.Settings.Visuals.Local.Crosshair.Thickness
+    Judensense.Visuals["RightLine"].Transparency = 1
+    Judensense.Visuals["RightLine"].From = Vector2.new(mouseX - gap, mouseY)
+    Judensense.Visuals["RightLine"].To = Vector2.new(mouseX - Real_Size, mouseY)
+    if Judensense.Settings.Visuals.Local.Crosshair.RotationEnabled then
+        Judensense.Visuals["RightLine"].From = Utility:Rotate(Judensense.Visuals["RightLine"].From, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+        Judensense.Visuals["RightLine"].To = Utility:Rotate(Judensense.Visuals["RightLine"].To, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+    end
+    Judensense.Visuals["TopLine"].Visible = Judensense.Settings.Visuals.Local.Crosshair.Enabled
+    Judensense.Visuals["TopLine"].Color = Judensense.Settings.Visuals.Local.Crosshair.Color
+    Judensense.Visuals["TopLine"].Thickness = Judensense.Settings.Visuals.Local.Crosshair.Thickness
+    Judensense.Visuals["TopLine"].Transparency = 1
+    Judensense.Visuals["TopLine"].From = Vector2.new(mouseX, mouseY + gap)
+    Judensense.Visuals["TopLine"].To = Vector2.new(mouseX, mouseY + Real_Size)
+    if Judensense.Settings.Visuals.Local.Crosshair.RotationEnabled then
+        Judensense.Visuals["TopLine"].From = Utility:Rotate(Judensense.Visuals["TopLine"].From, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+        Judensense.Visuals["TopLine"].To = Utility:Rotate(Judensense.Visuals["TopLine"].To, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+    end
+    Judensense.Visuals["BottomLine"].Visible = Judensense.Settings.Visuals.Local.Crosshair.Enabled
+    Judensense.Visuals["BottomLine"].Color = Judensense.Settings.Visuals.Local.Crosshair.Color
+    Judensense.Visuals["BottomLine"].Thickness = Judensense.Settings.Visuals.Local.Crosshair.Thickness
+    Judensense.Visuals["BottomLine"].Transparency = 1
+    Judensense.Visuals["BottomLine"].From = Vector2.new(mouseX, mouseY - gap)
+    Judensense.Visuals["BottomLine"].To = Vector2.new(mouseX, mouseY - Real_Size)
+    if Judensense.Settings.Visuals.Local.Crosshair.RotationEnabled then
+        Judensense.Visuals["BottomLine"].From = Utility:Rotate(Judensense.Visuals["BottomLine"].From, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+        Judensense.Visuals["BottomLine"].To = Utility:Rotate(Judensense.Visuals["BottomLine"].To, Vector2.new(mouseX, mouseY), math.rad(rotationAngle))
+    end
+end)
+--
+Utility:Connection(RunService.Heartbeat, function()
+    if Judensense.Settings.Target.Enabled and Judensense.Locals.Target and Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target.Character and Judensense.Settings.Target.AntiGroundShots then
+        Utility:ThreadFunction(Target:AntiGroundShots(Judensense.Locals.Target, Judensense.Settings.Target.Enabled, Judensense.Locals.TargetBindEnabled, Judensense.Locals.BodyPart, Judensense.Settings.Target.AntiGroundShots), "9x01")
+    else
+        Utility:KillThread("9x01")
+    end
+end)
+--
+Utility:Connection(RunService.RenderStepped, function()
+    if Judensense.Settings.Target.Enabled and Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Resolver.Enabled and Judensense.Settings.Target.Resolver.Method == "Delta Time" then
+        local currentTime = tick()
+        if Judensense.Locals.lastPosition and Judensense.Locals.lastUpdateTime then
+            local deltaTime = currentTime - Judensense.Locals.lastUpdateTime
+            local displacement = Judensense.Locals.Target.Character:FindFirstChild("HumanoidRootPart").Position - Judensense.Locals.lastPosition
+            local targetVelocity = displacement / deltaTime
+            Judensense.Locals.resolvedVelocity = Judensense.Locals.resolvedVelocity * 0.9 + targetVelocity * (1 - 0.9)
+            Judensense.Locals.Target.Character:FindFirstChild("HumanoidRootPart").Velocity = Judensense.Locals.resolvedVelocity
+            Judensense.Locals.Target.Character:FindFirstChild("HumanoidRootPart").AssemblyLinearVelocity = Judensense.Locals.resolvedVelocity
+        end
+        Judensense.Locals.lastPosition = Judensense.Locals.Target.Character:FindFirstChild("HumanoidRootPart").Position
+        Judensense.Locals.lastUpdateTime = currentTime
+    end
+end)
+
+--
+Utility:Connection(RunService.Heartbeat, function()
+    if Judensense.Settings.Blatant.CFrameDesync.Angles.Enabled or Judensense.Settings.Blatant.CFrameDesync.Enabled then
+        Judensense.Locals.Desync[1] = Client.Character.HumanoidRootPart.CFrame
+        local cframe = Client.Character.HumanoidRootPart.CFrame
+        if Judensense.Settings.Blatant.CFrameDesync.Enabled then
+            if Judensense.Settings.Blatant.CFrameDesync.Type == "Random" then
+                cframe = cframe * CFrame.new(math.random(-Judensense.Settings.Blatant.CFrameDesync.Random.X, Judensense.Settings.Blatant.CFrameDesync.Random.X), math.random(-Judensense.Settings.Blatant.CFrameDesync.Random.Y, Judensense.Settings.Blatant.CFrameDesync.Random.Y), math.random(-Judensense.Settings.Blatant.CFrameDesync.Random.Z, Judensense.Settings.Blatant.CFrameDesync.Random.Z))
+            elseif Judensense.Settings.Blatant.CFrameDesync.Type == "Custom" then
+                cframe = cframe * CFrame.new(Judensense.Settings.Blatant.CFrameDesync.Custom.X, Judensense.Settings.Blatant.CFrameDesync.Custom.Y, Judensense.Settings.Blatant.CFrameDesync.Custom.Z)
+            elseif Judensense.Settings.Blatant.CFrameDesync.Type == "Mouse" then
+                cframe = CFrame.new(Client:GetMouse().Hit.Position)
+            elseif Judensense.Settings.Blatant.CFrameDesync.Type == "Target Strafe" and Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target and Judensense.Settings.Target.Enabled then
+                local currentTime = tick() 
+                cframe = CFrame.new(Judensense.Locals.Target.Character.HumanoidRootPart.Position) * CFrame.Angles(0, 2 * math.pi * currentTime * Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Speed % (2 * math.pi), 0) * CFrame.new(0, Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Height, Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Distance)
+            elseif Judensense.Settings.Blatant.CFrameDesync.Type == "Target Mouse" and Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled and Judensense.Locals.Target then
+                cframe = CFrame.new(Judensense.Locals.Target.Character.HumanoidRootPart.Position + (Judensense.Locals.Target.Character.BodyEffects["MousePos"].Value - Judensense.Locals.Target.Character.HumanoidRootPart.Position).Unit * -10)
+            elseif Judensense.Settings.Blatant.CFrameDesync.Type == "Local Strafe" then
+                local currentTime = tick() 
+                cframe = CFrame.new(Client.Character.HumanoidRootPart.Position) * CFrame.Angles(0, 2 * math.pi * currentTime * Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Speed % (2 * math.pi), 0) * CFrame.new(0, Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Height, Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Distance)
+            end
+        end
+
+        if Judensense.Settings.Blatant.CFrameDesync.Visualize.Enabled then
+            Judensense.Visuals["R6Dummy"].Parent = workspace
+            Judensense.Visuals["R6Dummy"].HumanoidRootPart.Velocity = Vector3.new()
+            Judensense.Visuals["R6Dummy"]:SetPrimaryPartCFrame(cframe)
+            for i, v in pairs(Judensense.Visuals["R6Dummy"]:GetChildren()) do v.Transparency = v.Name == "HumanoidRootPart" and 1 or 0.70; v.Material = "Neon"; v.Color = Judensense.Settings.Blatant.CFrameDesync.Visualize.Color; v.CanCollide = false; v.Anchored = false end
+        else
+            Judensense.Visuals["R6Dummy"].Parent = nil
+        end
+
+        if Judensense.Settings.Blatant.CFrameDesync.Angles.Enabled then
+            if Judensense.Settings.Blatant.CFrameDesync.Angles.Type == "Random" then
+                cframe = cframe * CFrame.Angles(math.rad(math.random(Judensense.Settings.Blatant.CFrameDesync.Angles.Random.X)), math.rad(math.random(Judensense.Settings.Blatant.CFrameDesync.Angles.Random.Y)), math.rad(math.random(Judensense.Settings.Blatant.CFrameDesync.Angles.Random.Z)))
+            elseif Judensense.Settings.Blatant.CFrameDesync.Angles.Type == "Custom" then
+                cframe = cframe * CFrame.Angles(math.rad(Judensense.Settings.Blatant.CFrameDesync.Angles.Custom.X), math.rad(Judensense.Settings.Blatant.CFrameDesync.Angles.Custom.Y), math.rad(Judensense.Settings.Blatant.CFrameDesync.Angles.Custom.Z))
+            end
+        end
+        Client.Character.HumanoidRootPart.CFrame = cframe
+        RunService.RenderStepped:Wait()
+        Client.Character.HumanoidRootPart.CFrame = Judensense.Locals.Desync[1]
+    else
+        if Judensense.Visuals["R6Dummy"].Parent ~= nil then
+            Judensense.Visuals["R6Dummy"].Parent = nil
+        end
+    end
+end)
+--
+local ammoChangedConnection;
+--// pretty unreadable but still cool
+Utility:Connection(RunService.RenderStepped, function()
+    if Judensense.Settings.Visuals.Local.BulletTracers.Enabled or Judensense.Settings.Visuals.Local.BulletImpacts.Enabled then
+        local gun = Utility:GetGun()
+        if gun then
+            local ammo = gun:FindFirstChild("Ammo")
+            Judensense.Locals.lastAmmo = ammo.Value
+            if not ammoChangedConnection then
+                ammoChangedConnection = ammo:GetPropertyChangedSignal("Value"):Connect(function()
+                    if (gun.Ammo.Value < Judensense.Locals.lastAmmo) and Judensense.Locals.lastAmmo then
+                        Judensense.Locals.lastAmmo = ammo.Value
+                        local childAddedConnection
+                        childAddedConnection = game.Workspace["Ignored"].Siren.Radius.ChildAdded:Connect(function(obj)
+                            if obj and obj.Name == "BULLET_RAYS" then
+                                Judensense.Locals.childrenAdded = Judensense.Locals.childrenAdded + 1
+                                if (gun.Name == "[TacticalShotgun]") or  (gun.Name == "[Double-Barrel SG]") then
+                                    if Judensense.Locals.childrenAdded <= 5 then
+                                        local ray = Ray.new(obj.Position, obj.CFrame.LookVector * 1000)
+                                        local ignoreList = {Client.Character}
+                                        local hit, hitPosition = workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+                                        if Judensense.Settings.Visuals.Local.BulletTracers.Enabled then
+                                            if Judensense.Settings.Visuals.Local.BulletTracers.Type == "Drawing" then
+                                                Utility:BeamDrawing(obj.Position, hitPosition)
+                                            elseif Judensense.Settings.Visuals.Local.BulletTracers.Type == "Beam" then
+                                                Utility:Beam(obj.Position, hitPosition, Judensense.Settings.Visuals.Local.BulletTracers.Color, Judensense.Settings.Visuals.Local.BulletTracers.Duration)
+                                            end
+                                        end
+                                        if Judensense.Settings.Visuals.Local.BulletImpacts.Enabled then
+                                            Utility:Impact(hitPosition)
+                                        end
+                                        obj:Destroy()
+                                    else
+                                        childAddedConnection:Disconnect()
+                                        Judensense.Locals.childrenAdded = 0
+                                        obj:Destroy()
+                                    end
+                                else
+                                    childAddedConnection:Disconnect()
+                                    local ray = Ray.new(obj.Position, obj.CFrame.LookVector * 1000)
+                                    local ignoreList = {Client.Character}
+                                    local hit, hitPosition = workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+                                    if Judensense.Settings.Visuals.Local.BulletTracers.Enabled then
+                                        if Judensense.Settings.Visuals.Local.BulletTracers.Type == "Drawing" then
+                                            Utility:BeamDrawing(obj.Position, hitPosition)
+                                        elseif Judensense.Settings.Visuals.Local.BulletTracers.Type == "Beam" then
+                                            Utility:Beam(obj.Position, hitPosition, Judensense.Settings.Visuals.Local.BulletTracers.Color, Judensense.Settings.Visuals.Local.BulletTracers.Duration)
+                                        end
+                                    end
+                                    if Judensense.Settings.Visuals.Local.BulletImpacts.Enabled then
+                                        Utility:Impact(hitPosition)
+                                    end
+                                    obj:Destroy()
+                                end
+                                if Judensense.Locals.childrenAdded > 5 then
+                                    Judensense.Locals.childrenAdded = 0
+                                end
+                            end
+                        end)
+                    end
+                end)
+            end
+        else
+            if ammoChangedConnection then
+                ammoChangedConnection:Disconnect()
+                ammoChangedConnection = nil
+            end
+        end
+    else
+        if ammoChangedConnection then
+            ammoChangedConnection:Disconnect()
+            ammoChangedConnection = nil
+        end
+    end
+end)
+--
+Utility:Connection(RunService.Heartbeat, function()
+    if Judensense.Settings.Blatant.Movement.CFrameSpeed.Enabled then
+        if Client.Character.Humanoid.MoveDirection.Magnitude > 0 then
+            for i = 0.01, Judensense.Settings.Blatant.Movement.CFrameSpeed.Speed do
+                Client.Character:TranslateBy(Client.Character.Humanoid.MoveDirection)
+            end
+        end
+    end
+end)
+--
+Utility:Connection(RunService.Heartbeat, function()
+    if Judensense.Settings.Blatant.AntiLock.Enabled then
+        local velocity = Client.Character.HumanoidRootPart.Velocity
+        if Judensense.Settings.Blatant.AntiLock.Type == "Custom" then
+            Client.Character.HumanoidRootPart.Velocity = Vector3.new(Judensense.Settings.Blatant.AntiLock.Yaw, Judensense.Settings.Blatant.AntiLock.Pitch, Judensense.Settings.Blatant.AntiLock.Roll) 
+            RunService.RenderStepped:Wait()
+            Client.Character.HumanoidRootPart.Velocity = velocity
+        elseif Judensense.Settings.Blatant.AntiLock.Type == "Pred Multiplier" then
+            Client.Character.HumanoidRootPart.Velocity = velocity * Vector3.new(Judensense.Settings.Blatant.AntiLock.Multiplier, Judensense.Settings.Blatant.AntiLock.Multiplier, Judensense.Settings.Blatant.AntiLock.Multiplier) 
+            RunService.RenderStepped:Wait()
+            Client.Character.HumanoidRootPart.Velocity = velocity
+        elseif Judensense.Settings.Blatant.AntiLock.Type == "Sky" then
+            Client.Character.HumanoidRootPart.Velocity = Vector3.new(0, Judensense.Settings.Blatant.AntiLock.Roll, 0) 
+            RunService.RenderStepped:Wait()
+            Client.Character.HumanoidRootPart.Velocity = velocity 
+        elseif Judensense.Settings.Blatant.AntiLock.Type == "Underground" then
+            Client.Character.HumanoidRootPart.Velocity = Vector3.new(0, -Judensense.Settings.Blatant.AntiLock.Roll, 0) 
+            RunService.RenderStepped:Wait()
+            Client.Character.HumanoidRootPart.Velocity = velocity
+        elseif Judensense.Settings.Blatant.AntiLock.Type == "Shake" then
+            Client.Character.HumanoidRootPart.Velocity = Vector3.new(math.random() * Judensense.Settings.Blatant.AntiLock.ShakeValue - Judensense.Settings.Blatant.AntiLock.ShakeValue / 2, 0, math.random() * Judensense.Settings.Blatant.AntiLock.ShakeValue - Judensense.Settings.Blatant.AntiLock.ShakeValue / 2) 
+            RunService.RenderStepped:Wait()
+            Client.Character.HumanoidRootPart.Velocity = velocity
+        elseif Judensense.Settings.Blatant.AntiLock.Type == "Pred Breaker" then
+            Client.Character.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0) 
+            RunService.RenderStepped:Wait()
+            Client.Character.HumanoidRootPart.Velocity = velocity
+        end
+    end
+end)
+--
+local AimViewerLine = ThreeDrawingLibrary:New3DLine(); AimViewerLine.Visible = false; AimViewerLine.Color = Color3.new(255, 255, 255); AimViewerLine.Thickness = 1;
+
+Utility:Connection(RunService.Heartbeat, function()
+    if Judensense.Settings.Blatant.AntiLock.AimViewer.Enabled and Judensense.Locals.Target and Judensense.Locals.TargetBindEnabled and Judensense.Settings.Target.Enabled then
+        AimViewerLine.Color = Judensense.Settings.Blatant.AntiLock.AimViewer.Color
+        AimViewerLine.Thickness = Judensense.Settings.Blatant.AntiLock.AimViewer.Thickness
+        AimViewerLine.From = Judensense.Locals.Target.Character.Head.Position
+        AimViewerLine.To = Judensense.Locals.Target.Character.BodyEffects["MousePos"].Value
+        AimViewerLine.Visible = true
+    else
+        AimViewerLine.Visible = false
+    end
+end)
+
+--
+if game:GetService("Workspace"):FindFirstChild("Ignored") then
+    game:GetService("Workspace").Ignored.ChildAdded:Connect(function(obj)
+        if obj.Name == "Launcher" and Client.Character:FindFirstChild("HumanoidRootPart") and Judensense.Settings.Misc.Exploits.AntiRPG then
+            Judensense.Locals.AntiRpg = true
+            local connection
+            connection = Utility:Connection(RunService.Heartbeat, function()
+                if ((obj.Position - Client.Character:FindFirstChild("HumanoidRootPart").Position).Magnitude) < 20 then
+                    Utility:DisconnectConnection(connection)
+                    local time = 0
+                    local unnamed
+                    unnamed = Utility:Connection(RunService.Heartbeat, function()
+                        if time < 1 then
+                            time = time + (1 / 60)
+                            Judensense.Locals.Original[1] = Client.Character:FindFirstChild("HumanoidRootPart").CFrame
+                            Client.Character:FindFirstChild("HumanoidRootPart").CFrame = Client.Character:FindFirstChild("HumanoidRootPart").CFrame + Vector3.new(math.random(-1500, 1500), math.random(-1500, 1500), math.random(-1500, 1500))
+                            RunService.RenderStepped:Wait()
+                            Client.Character:FindFirstChild("HumanoidRootPart").CFrame = Judensense.Locals.Original[1]
+                        else
+                            Utility:DisconnectConnection(unnamed)
+                            time = 0
+                            Client.Character:FindFirstChild("HumanoidRootPart").CFrame = Judensense.Locals.Original[1]
+                            Judensense.Locals.AntiRpg = false
+                        end
+                    end)
+                end
+            end)
+        end
+    end)
+end
+--
+--// Hooks
+local MainHookingFunctionsTick = tick()
+--
+Judensense.Hooks[1] = hookmetamethod(game, "__index", newcclosure(function(self, key)
+    if not checkcaller() then
+        if key == "CFrame" and Judensense.Locals.Desync[1] and (Judensense.Settings.Blatant.CFrameDesync.Enabled or Judensense.Settings.Blatant.CFrameDesync.Angles.Enabled) and Client.Character and Client.Character:FindFirstChild("HumanoidRootPart") and Client.Character:FindFirstChild("Humanoid") and Client.Character:FindFirstChild("Humanoid").Health > 0 then
+            if self == Client.Character.HumanoidRootPart then
+                return Judensense.Locals.Desync[1] or CFrame.new()
+            elseif self == Client.Character.Head then
+                return Judensense.Locals.Desync[1] and Judensense.Locals.Desync[1] + Vector3.new(0, Client.Character.HumanoidRootPart.Size / 2 + 0.5, 0) or CFrame.new()
+            end
+        end
+    end
+    return Judensense.Hooks[1](self, key)
+end))
+--
+Judensense.Hooks[2] = hookmetamethod(game, "__namecall", newcclosure(function(...)
+    local Arguements = {...}
+    local MousePositions = {"UpdateMousePos", "GetMousePos", "MousePos", "MOUSE"} --// u can add more mouse positions here to add more for hood games support
+    if getnamecallmethod() == "FireServer" and table.find(MousePositions, Arguements[2]) and Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target and Judensense.Locals.Target.Character and Judensense.Settings.Target.Enabled and Judensense.Settings.Target.Method == "FireServer" then
+        if Judensense.Settings.Target.Resolver.Enabled and Judensense.Settings.Target.Resolver.Method == "MoveDirection" then
+            Arguements[3] = Judensense.Locals.BodyPart.Position + (Judensense.Locals.Target.Character.Humanoid.MoveDirection * tonumber(Judensense.Settings.Target.Prediction) * Judensense.Locals.Target.Character.Humanoid.WalkSpeed)
+            if Judensense.Settings.Target.Jumpoffset.Enabled then
+                Arguements[3] = Arguements[3] + Vector3.new(0, Judensense.Locals.Jumpoffset, 0)
+            end
+        else
+            Arguements[3] = Judensense.Locals.BodyPart.Position + (Judensense.Locals.BodyPart.Velocity * tonumber(Judensense.Settings.Target.Prediction))
+            if Judensense.Settings.Target.Jumpoffset.Enabled then
+                Arguements[3] = Arguements[3] + Vector3.new(0, Judensense.Locals.Jumpoffset, 0)
+            end
+        end
+        return Judensense.Hooks[2](unpack(Arguements))
+    end
+    return Judensense.Hooks[2](...)
+end))
+--
+Judensense.Hooks[3] = hookmetamethod(Client:GetMouse(), "__index", newcclosure(function(self, index)
+    if index == "Hit" and Judensense.Locals.TargetBindEnabled and Judensense.Locals.Target and Judensense.Locals.Target.Character and Judensense.Settings.Target.Enabled and Judensense.Settings.Target.Method == "Spoof Mouse" then
+        if Judensense.Settings.Target.Resolver.Enabled and Judensense.Settings.Target.Resolver.Method == "MoveDirection" then
+            local position = CFrame.new(Judensense.Locals.BodyPart.Position + (Judensense.Locals.Target.Character.Humanoid.MoveDirection * tonumber(Judensense.Settings.Target.Prediction) * Judensense.Locals.Target.Character.Humanoid.WalkSpeed))
+            if Judensense.Settings.Target.Jumpoffset.Enabled then
+                position = position + Vector3.new(0, Judensense.Locals.Jumpoffset, 0)
+            end
+            return position
+        else
+            local position = CFrame.new(Judensense.Locals.BodyPart.Position + (Judensense.Locals.BodyPart.Velocity * tonumber(Judensense.Settings.Target.Prediction)))
+            if Judensense.Settings.Target.Jumpoffset.Enabled then
+                position = position + Vector3.new(0, Judensense.Locals.Jumpoffset, 0)
+            end
+            return position
+        end
+    end
+    return Judensense.Hooks[3](self, index)
+end))
+--
+Judensense.Hooks[5] = hookmetamethod(game, "__index", function(self, index)
+    if not checkcaller() then
+        if Judensense.Locals.AntiRpg and Judensense.Locals.Original[1] and index == "CFrame" and self.Name == "HumanoidRootPart" and Client.Character and Client.Character:FindFirstChild("HumanoidRootPart") and Client.Character:FindFirstChildWhichIsA("Humanoid") then
+            return Judensense.Locals.Original[1]
+        end
+    end
+    return Judensense.Hooks[5](self, index)
+end)
+--
+Judensense.Hooks[6] = hookmetamethod(game, "__newindex", function(self, index, value)
+    if tostring(getcallingscript()) == "Framework" and tostring(self):lower():find("camera") and tostring(index) == "CFrame" and Judensense.Settings.Misc.Exploits.NoRecoil then
+        return
+    end
+    return Judensense.Hooks[6](self, index, value)
+end)
+
+warn("Hooks Took: " .. tostring(tick() - MainHookingFunctionsTick .. " seconds To Intialize"))
+warn("Main Functions Took: " .. tostring(tick() - MainFunctions .. " seconds To Intialize"))
+
+--// Ui library
+
+local MainUiStart = tick()
+Utility:Coroutine(function()
+    local Window    = Library:New{Name ="Judensense", Description="{SOLD SOURCE CODE}"}
+    local Aimbot    = Window:AddTab("Aim");             local LCAimbot     = Aimbot:AddColumn("Left");          local RCAimbot     = Aimbot:AddColumn("Right");
+    local AntiAim    = Window:AddTab("Anti Aim");       local LCAntiAim     = AntiAim:AddColumn("Left");        local RCAntiAim    = AntiAim:AddColumn("Right");
+    local Movement  = Window:AddTab("Movement");        local LCMovement   = Movement:AddColumn("Left");        local RCMovement   = Movement:AddColumn("Right");
+    local Visuals   = Window:AddTab("Visuals");         local LCVisuals    = Visuals:AddColumn("Left");         local RCVisuals    = Visuals:AddColumn("Right");
+    local Miscs     = Window:AddTab("Miscellaneous");   local LCMiscs      = Miscs:AddColumn("Left");           local RCMiscs      = Miscs:AddColumn("Right");
+    local Settings  = Window:AddTab("Settings");        local LCSettings   = Settings:AddColumn("Left");        local RCSettings   = Settings:AddColumn("Right");
+
+    local STarget = LCAimbot:AddSection("Target Aim"); local SSTarget = STarget:AddSubsec("Target Aim"); 
+
+    SSTarget:AddToggle{text="Enabled",flag="TargetToggleEnabled",callback=function(on)
+        Judensense.Settings.Target.Enabled = on
+    end}:AddKeybind{key=Enum.KeyCode.Q,callback=function()
+        if Judensense.Settings.Target.Enabled then
+            Judensense.Locals.TargetBindEnabled = not Judensense.Locals.TargetBindEnabled
+            if Judensense.Locals.TargetBindEnabled then
+                Judensense.Locals.Target = Utility:GetClosestPlayer()
+                if Judensense.Settings.Target.Alerts then
+                    Utility:Notify("Targetting", tostring(Judensense.Locals.Target.Character.Humanoid.DisplayName), 3)
+                end
+            elseif not Judensense.Locals.TargetBindEnabled then
+                if Judensense.Settings.Target.Alerts then
+                    Utility:Notify("Untargetting", tostring(Judensense.Locals.Target.Character.Humanoid.DisplayName), 3)
+                end
+            end
+        end
+    end}
+
+    SSTarget:AddToggle{text="Alerts",flag="AlertsToggleEnabled",callback=function(on)
+        Judensense.Settings.Target.Alerts = on
+    end}
+
+    SSTarget:AddToggle{text="Resolver",flag="ResolverEnabledFunny",callback=function(on)
+        Judensense.Settings.Target.Resolver.Enabled = on
+    end}
+
+    SSTarget:AddToggle{text="Hitchance",flag="HitchanceEnabledFunny",callback=function(on)
+        Judensense.Settings.Target.Hitchance.Enabled = on
+    end}
+
+    SSTarget:AddDropdown{text = "Resolver Method", values = {"MoveDirection", "Delta Time" }, value = 1, callback = function(arg) Judensense.Settings.Target.Resolver.Method = arg end}
+
+    SSTarget:AddDropdown{text = "Aim Method", values = { "FireServer", "Spoof Mouse"}, value = 1, callback = function(arg) Judensense.Settings.Target.Method = arg end}
+    SSTarget:AddSlider{min=0.1,max=100,value=100,suffix="%",flag="HitchanceValueFunny",float=2,text="Hitchance", callback=function(e)
+        Judensense.Settings.Target.Hitchance.Chance = e
+    end}
+
+    SSTarget:AddTextbox{text = "Prediction", placeholder = "0.135",callback=function(val) 
+        Judensense.Settings.Target.Prediction = val
+    end}
+
+    local SFov = LCAimbot:AddSection("Fov"); local SSTargetFov = SFov:AddSubsec("Fov"); 
+
+    SSTargetFov:AddToggle{text="Fov Enabled",flag="FovEnabledTargetAim",callback=function(on)
+        Judensense.Settings.Target.FovCircle.Enabled = on
+    end}
+
+    SSTargetFov:AddToggle{text="Filled",flag="FovFilledTargetAim",callback=function(on)
+        Judensense.Settings.Target.FovCircle.Filled = on
+    end}
+
+    SSTargetFov:AddToggle{text="Outline",flag="FovOutlineTargetAim",callback=function(on)
+        Judensense.Settings.Target.FovCircle.Outline = on
+    end}
+
+    SSTargetFov:AddSlider{min=0,max=1,value=1,suffix="%",flag="FovTransparencyFunny",float=2,text="Transparency", callback=function(e)
+        Judensense.Settings.Target.FovCircle.Transparency = e
+    end}
+
+    SSTargetFov:AddSlider{min=10,max=800,value=80,suffix="%",flag="FovRadiusFunny",text="Radius", callback=function(e)
+        Judensense.Settings.Target.FovCircle.Radius = e
+    end}
+
+    SSTargetFov:AddColor{text = "Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.FovCircle.Color = color
+    end}
+
+    SSTargetFov:AddColor{text = "Outline Color", default = {r = 0, g = 0, b = 0, a = 0}, callback = function(color)
+        Judensense.Settings.Target.FovCircle.OutlineColor = color
+    end}
+
+    local STargetChecks = RCAimbot:AddSection("Checks"); local SSTargetChecks = STargetChecks:AddSubsec("Checks"); 
+
+    SSTargetChecks:AddToggle{text="Wallcheck",flag="WallcheckToggleEnabled",callback=function(on)
+        Judensense.Settings.Target.Checks.Wallcheck = on
+    end}
+
+    SSTargetChecks:AddToggle{text="Knocked Check",flag="UnLockOnKnockedEnabled",callback=function(on)
+        Judensense.Settings.Target.Checks.Knocked = on
+    end}
+
+    SSTargetChecks:AddDropdown{text = "Hit Part", values = {"Head", "HumanoidRootPart", "UpperTorso", "LowerTorso", "LeftFoot", "LeftLowerLeg", "LeftUpperLeg", "RightFoot", "RightLowerLeg", "RightUpperLeg", "LeftHand", "LeftLowerArm", "LeftUpperArm", "RightHand", "RightLowerArm", "RightUpperArm"}, value = {"HumanoidRootPart"}, multi = true, callback = function(arg) 
+        Judensense.Settings.Target.Hitpart.Hitbox = arg 
+    end}
+
+    SSTargetChecks:AddDropdown{text = "Multi Hitbox Mode", values = {"Normal", "Random", "Closest Body Part", "Closest Point"}, value = "Normal", callback = function(arg) 
+        Judensense.Settings.Target.Hitpart.MultiSelectionMode = arg 
+    end}
+
+    local STargetAutoSelect = RCAimbot:AddSection("Auto Select"); local SSTargetAutoSelect = STargetAutoSelect:AddSubsec("Auto Select"); 
+
+    SSTargetAutoSelect:AddToggle{text="Auto Select",flag="RageBotEnabled",callback=function(on)
+        Judensense.Settings.Target.AutoSelect.Enabled = on
+    end}
+
+    SSTargetAutoSelect:AddDropdown{text = "Auto Select Type", values = {"Silent Aim", "Rage Bot"}, value = "Silent Aim", callback = function(arg) 
+        Judensense.Settings.Target.AutoSelect.Type = arg 
+    end}
+
+    local STargetAimAirStuff = RCAimbot:AddSection("Air"); local SSTargetAirStuff = STargetAimAirStuff:AddSubsec("Air");
+
+    SSTargetAirStuff:AddToggle{text="Anti Groundshots",flag="AntiGroundShotsEnabled",callback=function(on)
+        Judensense.Settings.Target.AntiGroundShots = on
+    end}
+
+    SSTargetAirStuff:AddToggle{text="Jump offset",flag="JumpoffsetEnabled",callback=function(on)
+        Judensense.Settings.Target.Jumpoffset.Enabled = on
+    end}
+
+    SSTargetAirStuff:AddTextbox{text = "Jumpoffset Value", placeholder = "0.09",callback=function(val) 
+        Judensense.Settings.Target.Jumpoffset.Value = val
+    end}
+
+    local SEsp = LCVisuals:AddSection("ESP"); local SSEsp = SEsp:AddSubsec("ESP"); 
+
+    SSEsp:AddDivider{text = "Master switch"}
+
+    SSEsp:AddToggle{text="Enabled",flag="EspEnabledMasterSwitch",callback=function(on)
+        taffy_esp.enabled = on
+    end}
+
+    SSEsp:AddDivider{text = "Boxes"}
+
+    SSEsp:AddToggle{text="Boxes Enabled",flag="BoxesEspEnabled",callback=function(on)
+        taffy_esp.box.boxes = on
+    end}
+
+    SSEsp:AddToggle{text="Boxes Outline",flag="BoxesOutlineEspEnabled",callback=function(on)
+        taffy_esp.box.outline = on
+    end}
+
+
+    SSEsp:AddColor{text = "Boxes Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        taffy_esp.box.color1 = color
+    end}
+
+    SSEsp:AddColor{text = "Boxes Outline Color", default = {r = 0, g = 0, b = 0, a = 255}, callback = function(color)
+        taffy_esp.box.color2 = color
+    end}
+
+
+    SSEsp:AddDropdown{text = "Box Type", values = {"2D", "3D" }, value = 1, callback = function(arg) taffy_esp.box.boxtype = arg end}
+
+    SSEsp:AddToggle{text="Boxes Filled",flag="BoxesFilledEspEnabled",callback=function(on)
+        taffy_esp.box.filled = on
+    end}
+
+    SSEsp:AddColor{text = "Boxes Filled Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        taffy_esp.box.filledColor = color
+    end}
+
+    SSEsp:AddDivider{text = "Healthbar"}
+
+    SSEsp:AddToggle{text="Healthbar",flag="HealthbarEspEnabled",callback=function(on)
+        taffy_esp.box.healthbar = on
+    end}
+
+    SSEsp:AddColor{text = "Healthbar Color", default = {r = 0, g = 255, b = 0, a = 255}, callback = function(color)
+        taffy_esp.box.healthbarcolor = color
+    end}
+
+    SSEsp:AddDivider{text = "Helthtext"}
+
+    SSEsp:AddToggle{text="Healthbar text",flag="HealthbarTextEspEnabled",callback=function(on)
+        taffy_esp.box.healthtext = on
+    end}
+
+    SSEsp:AddColor{text = "Healthtext Color", default = {r = 0, g = 255, b = 0, a = 255}, callback = function(color)
+        taffy_esp.box.healthtextcolor = color
+    end}
+
+    SSEsp:AddDivider{text = "Tracer"}
+
+    SSEsp:AddToggle{text="Tracers Enabled",flag="TracersEspEnabled",callback=function(on)
+        taffy_esp.tracer.enabled = on
+    end}
+
+    SSEsp:AddToggle{text="Unlock Tracers",flag="UnlockTracersToggle",callback=function(on)
+        taffy_esp.tracer.unlocktracers = on
+    end}
+
+    SSEsp:AddColor{text = "Tracers Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        taffy_esp.tracer.color = color
+    end}
+
+    SSEsp:AddDivider{text = "Names"}
+
+    SSEsp:AddToggle{text="Names Enabled",flag="NamesEnabledFunny",callback=function(on)
+        taffy_esp.name.enabled = on
+    end}
+
+    SSEsp:AddToggle{text="Names Outline",flag="NamesOutline",callback=function(on)
+        taffy_esp.name.outline = on
+    end}
+
+    SSEsp:AddColor{text = "Names Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        taffy_esp.name.color = color
+    end}
+
+    SSEsp:AddDivider{text = "Tool Show"}
+
+    SSEsp:AddToggle{text="Toolshow Enabled",flag="ToolsshowEnabledFunny",callback=function(on)
+        taffy_esp.Toolsshow.enable = on
+    end}
+
+    SSEsp:AddToggle{text="Toolshow Outline",flag="ToolsshowOutline",callback=function(on)
+        taffy_esp.Toolsshow.outline = on
+    end}
+
+    SSEsp:AddColor{text = "Toolshow Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        taffy_esp.Toolsshow.color = color
+    end}
+
+    SSEsp:AddDivider{text = "Skeletons"}
+
+    SSEsp:AddToggle{text="Skeletons Enabled",flag="SkeletonsEnabledFunny",callback=function(on)
+        taffy_esp.Skeletons.Enabled = on
+    end}
+
+    SSEsp:AddColor{text = "Skeletons Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        taffy_esp.Skeletons.Color = color
+    end}
+
+    SSEsp:AddDivider{text = "Misc"}
+
+    SSEsp:AddToggle{text="Fade Enabled",flag="FadeEnabledFunny",callback=function(on)
+        taffy_esp.misc.fade = on
+    end}
+
+    SSEsp:AddSlider{min=0.1,max=10,value=4,suffix="%",flag="FadeSpeedFunny",text="Fade Speed", callback=function(e)
+        taffy_esp.misc.fadespeed = e
+    end}
+
+    SSEsp:AddToggle{text="Target Only",flag="TargetOnlyEnabledFunny",callback=function(on)
+        taffy_esp.misc.target = on
+    end}
+
+    local STargetVisuals = LCVisuals:AddSection("Target Visuals"); local SSTargetVisuals = STargetVisuals:AddSubsec("Target Visuals");
+
+    SSTargetVisuals:AddToggle{text="Tracers Enabled",flag="TargetVisualsTracerEnabled",callback=function(on)
+        Judensense.Settings.Target.Visuals.Tracer.Enabled = on
+    end}
+
+    SSTargetVisuals:AddSlider{min=0.1,max=5,value=1,suffix="%",flag="TargetTracersThickness",text="Thickness", callback=function(e)
+        Judensense.Settings.Target.Visuals.Tracer.Thickness = e
+    end}
+
+    SSTargetVisuals:AddColor{text = "Target Tracers Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.Tracer.Color = color
+    end}
+
+    SSTargetVisuals:AddToggle{text="MoveDirection Visualizer",flag="MoveDirectionVisualizerToggle",callback=function(on)
+        Judensense.Settings.Target.Visuals.VisualizeMoveDirection.Enabled = on
+    end}
+
+    SSTargetVisuals:AddToggle{text="MoveDirection Outline",flag="MoveDirectionVisualizerOutlineColor",callback=function(on)
+        Judensense.Settings.Target.Visuals.VisualizeMoveDirection.Outline = on
+    end}
+
+    SSTargetVisuals:AddColor{text = "MoveDirection Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.VisualizeMoveDirection.Color = color
+    end}
+
+    SSTargetVisuals:AddToggle{text="Dot",flag="DotTargetVisualizer",callback=function(on)
+        Judensense.Settings.Target.Visuals.Dot.Enabled = on
+    end}
+
+    SSTargetVisuals:AddColor{text = "Dot Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.Dot.Color = color
+    end}
+
+    SSTargetVisuals:AddToggle{text="Part",flag="PartTargetVisualizer",callback=function(on)
+        Judensense.Settings.Target.Visuals.Part.Enabled = on
+    end}
+
+    SSTargetVisuals:AddColor{text = "Part Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.Part.Color = color
+    end}
+
+    SSTargetVisuals:AddSlider{min=0.1,max=30,value=16,suffix="%",flag="TargetPartSizeVisualizer",text="Part Size", callback=function(e)
+        Judensense.Settings.Target.Visuals.Part.Size = e
+    end}
+
+    SSTargetVisuals:AddDropdown{text = "Type", values = {"Block", "Cylinder", "Ball"}, value = 1, callback = function(arg) 
+        Judensense.Settings.Target.Visuals.Part.Shape = arg 
+    end}
+
+    SSTargetVisuals:AddDropdown{text = "Material", values = {"Neon", "ForceField", "Plastic"}, value = 1, callback = function(arg) 
+        Judensense.Settings.Target.Visuals.Part.Material = arg 
+    end}
+
+    SSTargetVisuals:AddToggle{text="Prediction Chams",flag="PredictionTargetTargetVisualizer",callback=function(on)
+        Judensense.Settings.Target.Visuals.PredictionChams.Enabled = on
+    end}
+
+    SSTargetVisuals:AddColor{text = "Prediction Chams Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.PredictionChams.Color = color
+    end}
+
+    SSTargetVisuals:AddToggle{text="Chams",flag="TargetChamsEnabled",callback=function(on)
+        Judensense.Settings.Target.Visuals.Chams.Enabled = on
+    end}
+
+    SSTargetVisuals:AddColor{text = "Chams Fill Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.Chams.FillColor = color
+    end}
+
+    SSTargetVisuals:AddColor{text = "Chams Outline Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Target.Visuals.Chams.OutlineColor = color
+    end}
+
+    SSTargetVisuals:AddSlider{min=0,max=1,value=0,suffix="%",flag="TargetChamsOutline",float=2,text="Chams Outline Transparency", callback=function(e)
+        Judensense.Settings.Target.Visuals.Chams.OutlineTransparency = e
+    end}
+
+    SSTargetVisuals:AddSlider{min=0,max=1,value=0.5,suffix="%",flag="TargetChamsFill",float=2,text="Chams Fill Transparency", callback=function(e)
+        Judensense.Settings.Target.Visuals.Chams.FillTransparency = e
+    end}
+
+    local SWorldVisuals = LCVisuals:AddSection("World"); local SSWorldVisuals = SWorldVisuals:AddSubsec("World");
+
+    SSWorldVisuals:AddToggle{text="Clock Time Enabled",flag="ClockTimeEnabledToggle",callback=function(on)
+        Judensense.Settings.Visuals.Local.Atmosphere.TimeOfDay.Enabled = on
+    end}
+
+    SSWorldVisuals:AddSlider{min=1,max=24,value=1,suffix="%",flag="WorldTimeThing",text="Clock Time", callback=function(e)
+        Judensense.Settings.Visuals.Local.Atmosphere.TimeOfDay.Time = e
+    end}
+
+    local SBulletTracers = RCVisuals:AddSection("Bullet Tracers"); local SSBulletTracers = SBulletTracers:AddSubsec("Bullet Tracers");
+
+    SSBulletTracers:AddToggle{text="Enabled",flag="BulletTracersEnabledToggle",callback=function(on)
+        Judensense.Settings.Visuals.Local.BulletTracers.Enabled = on
+    end}
+
+    SSBulletTracers:AddSlider{min=0.1,max=5,value=1,suffix="%",flag="BulletTracersThickness",text="Thickness", callback=function(e)
+        Judensense.Settings.Visuals.Local.BulletTracers.Thickness = e
+    end}
+
+    SSBulletTracers:AddSlider{min=0.1,max=5,value=1,suffix="%",flag="BulletTracersDuration",text="Duration", callback=function(e)
+        Judensense.Settings.Visuals.Local.BulletTracers.Duration = e
+    end}
+
+    SSBulletTracers:AddDropdown{text = "Type", values = {"Drawing", "Beam"}, value = 1, callback = function(arg) 
+        Judensense.Settings.Visuals.Local.BulletTracers.Type = arg 
+    end}
+
+    SSBulletTracers:AddColor{text = "Bullet Tracers Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Visuals.Local.BulletTracers.Color = color
+    end}
+
+    local SBulletImpacts = RCVisuals:AddSection("Bullet Impacts"); local SSBulletImpacts = SBulletImpacts:AddSubsec("Bullet Impacts");
+
+    SSBulletImpacts:AddToggle{text="Enabled",flag="BulletImpactsEnabledToggle",callback=function(on)
+        Judensense.Settings.Visuals.Local.BulletImpacts.Enabled = on
+    end}
+
+    SSBulletImpacts:AddSlider{min=0.1,max=5,value=1,suffix="%",flag="BulletImpactsDuration",text="Duration", callback=function(e)
+        Judensense.Settings.Visuals.Local.BulletImpacts.Duration = e
+    end}
+
+    SSBulletImpacts:AddSlider{min=0.1,max=20,value=0.20,suffix="%",float=2,flag="BulletImpactsSize",text="Size", callback=function(e)
+        Judensense.Settings.Visuals.Local.BulletImpacts.Size = e
+    end}
+
+    SSBulletImpacts:AddColor{text = "Bullet Impacts Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Visuals.Local.BulletImpacts.Color = color
+    end}
+
+    local SCrosshair = RCVisuals:AddSection("Crosshair"); local SSCCrosshair = SCrosshair:AddSubsec("Crosshair");
+
+    SSCCrosshair:AddToggle{text="Enabled",flag="CrosshairEnabledFunny",callback=function(on)
+        Judensense.Settings.Visuals.Local.Crosshair.Enabled = on
+    end}
+
+    SSCCrosshair:AddSlider{min=0.1,max=5,value=1,suffix="%",flag="CrosshairThickness",text="Thickness", callback=function(e)
+        Judensense.Settings.Visuals.Local.Crosshair.Thickness = e
+    end}
+
+    SSCCrosshair:AddSlider{min=10,max=50,value=20,suffix="'",flag="GapCrosshair",text="Gap", callback=function(e)
+        Judensense.Settings.Visuals.Local.Crosshair.Gap = e
+    end}
+
+    SSCCrosshair:AddSlider{min=10,max=50,value=2,suffix="'",flag="SizeCrosshair",text="Size", callback=function(e)
+        Judensense.Settings.Visuals.Local.Crosshair.Size = e
+    end}
+
+    SSCCrosshair:AddColor{text = "Crosshair Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Visuals.Local.Crosshair.Color = color
+    end}
+
+    SSCCrosshair:AddToggle{text="Rotation",flag="CrosshairRotationEnabled",callback=function(on)
+        Judensense.Settings.Visuals.Local.Crosshair.RotationEnabled = on
+    end}
+
+    SSCCrosshair:AddSlider{min=0.1,max=5,value=1,suffix="%",flag="CrosshairRotationSpeed",text="Speed", callback=function(e)
+        Judensense.Settings.Visuals.Local.Crosshair.RotationSpeed = e
+    end}
+
+    SSCCrosshair:AddToggle{text="Follow Target",flag="CrosshairFollowTargetEnabled",callback=function(on)
+        Judensense.Settings.Visuals.Local.Crosshair.FollowTarget = on
+    end}
+
+    local SCFrameDesync = LCAntiAim:AddSection("CFrame Desync"); local SSCFrameDesync = SCFrameDesync:AddSubsec("CFrame Desync");
+
+    SSCFrameDesync:AddToggle{text="Enabled",flag="CFrameDesyncEnabled",callback=function(on)
+        Judensense.Settings.Blatant.CFrameDesync.Enabled = on
+    end}:AddKeybind{sync = true}
+
+    SSCFrameDesync:AddDropdown{text = "Type", values = {"Random", "Custom", "Mouse", "Target Mouse", "Target Strafe", "Local Strafe"}, value = 1, callback = function(arg) Judensense.Settings.Blatant.CFrameDesync.Type = arg end}
+
+    SSCFrameDesync:AddToggle{text="Visualize",flag="CFrameDesyncVisualizeEnabled",callback=function(on)
+        Judensense.Settings.Blatant.CFrameDesync.Visualize.Enabled = on
+    end}
+
+    SSCFrameDesync:AddColor{text = "Visualize Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Blatant.CFrameDesync.Visualize.Color = color
+    end}
+
+    SSCFrameDesync:AddDivider{text = "Random"}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=300,value=1,suffix="%",flag="RandomCFrameDesyncX",text="Random X", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Random.X = e
+    end}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=300,value=1,suffix="%",flag="RandomCFrameDesyncY",text="Random Y", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Random.Y = e
+    end}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=300,value=1,suffix="%",flag="RandomCFrameDesyncZ",text="Rndom Z", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Random.Z = e
+    end}
+
+    SSCFrameDesync:AddDivider{text = "Custom"}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=300,value=0,suffix="%",flag="CustomCFrameDesyncX",text="Custom X", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Custom.X = e
+    end}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=300,value=0,suffix="%",flag="CustomCFrameDesyncY",text="Custom Y", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Custom.Y = e
+    end}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=300,value=0,suffix="%",flag="CustomCFrameDesyncZ",text="Custom Z", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Custom.Z = e
+    end}
+
+    SSCFrameDesync:AddDivider{text = "Target Strafe"}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=20,value=1,suffix="%",flag="TargetStrafeDesyncSpeed",text="Target Strafe Speed", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Speed = e
+    end}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=20,value=1,suffix="%",flag="TargetStrafeDesyncDistance",text="Target Strafe Distance", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Distance = e
+    end}
+
+    SSCFrameDesync:AddSlider{min=0.1,max=20,value=1,suffix="%",flag="TargetStrafeDesyncHeight",text="Target Strafe Height", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.TargetStrafe.Height = e
+    end}
+
+    local SCFrameAnglesDesync = LCAntiAim:AddSection("CFrame Angles Desync"); local SSCFrameDesyncAngles = SCFrameAnglesDesync:AddSubsec("CFrame Angles Desync");
+
+    SSCFrameDesyncAngles:AddToggle{text="Enabled",flag="CFrameAnglesDesync",callback=function(on)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Enabled = on
+    end}
+
+    SSCFrameDesyncAngles:AddDropdown{text = "Type", values = {"Random", "Custom"}, value = 1, callback = function(arg) Judensense.Settings.Blatant.CFrameDesync.Angles.Type = arg end}
+
+    SSCFrameDesyncAngles:AddDivider{text = "Random"}
+
+    SSCFrameDesyncAngles:AddSlider{min=0.1,max=180,value=1,suffix="%",flag="RandomCFrameAnglesDesyncX",text="Random X", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Random.X = e
+    end}
+
+    SSCFrameDesyncAngles:AddSlider{min=0.1,max=180,value=1,suffix="%",flag="RandomCFrameAnglesDesyncY",text="Random Y", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Random.Y = e
+    end}
+
+    SSCFrameDesyncAngles:AddSlider{min=0.1,max=180,value=1,suffix="%",flag="RandomCFrameAnglesDesyncZ",text="Random Z", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Random.Z = e
+    end}
+
+    SSCFrameDesyncAngles:AddDivider{text = "Custom"}
+
+    SSCFrameDesyncAngles:AddSlider{min=0.1,max=180,value=1,suffix="%",flag="CustomCFrameAnglesDesyncX",text="Custom X", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Custom.X = e
+    end}
+
+    SSCFrameDesyncAngles:AddSlider{min=0.1,max=180,value=1,suffix="%",flag="CustomCFrameAnglesDesyncY",text="Custom Y", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Custom.Y = e
+    end}
+
+    SSCFrameDesyncAngles:AddSlider{min=0.1,max=180,value=1,suffix="%",flag="CustomCFrameAnglesDesyncZ",text="Custom Z", callback=function(e)
+        Judensense.Settings.Blatant.CFrameDesync.Angles.Custom.Z = e
+    end}
+
+    local SAntiLock = RCAntiAim:AddSection("Anti Lock"); local SSAntiLock = SAntiLock:AddSubsec("Anti Lock");
+
+    SSAntiLock:AddToggle{text = "Enabled", callback = function(on) 
+        Judensense.Settings.Blatant.AntiLock.Enabled = on 
+    end}:AddKeybind{sync = true}
+
+    SSAntiLock:AddDropdown{text = "Preset", values = {"Custom", "Pred Multiplier", "Sky", "Underground", "Shake", "Pred Breaker"}, value = 1, callback = function(arg) 
+        Judensense.Settings.Blatant.AntiLock.Type = arg 
+    end}
+
+    SSAntiLock:AddDivider{text = "General"}
+
+    SSAntiLock:AddSlider{text = "Pitch", min = 0, max = 90, suffix = "'", callback = function(val)
+        Judensense.Settings.Blatant.AntiLock.Pitch = val 
+    end}
+
+    SSAntiLock:AddSlider{text = "Yaw", min = 0, max = 180, suffix = "'", callback = function(val) 
+        Judensense.Settings.Blatant.AntiLock.Yaw = val 
+    end}
+
+    SSAntiLock:AddSlider{text = "Roll", min = 0, max = 180, suffix = "'", callback = function(val) 
+        Judensense.Settings.Blatant.AntiLock.Roll = val 
+    end}
+
+    SSAntiLock:AddSpace(1)
+
+    SSAntiLock:AddDivider{text = "Multiplier"}
+
+    SSAntiLock:AddSlider{text = "Multiplier", min = 1.5, max = 10, float = 2, value = 1, suffix = "*", callback = function(val)
+        Judensense.Settings.Blatant.AntiLock.Multiplier = val 
+    end}
+
+    SSAntiLock:AddDivider{text = "Shake"}
+
+    SSAntiLock:AddSlider{text = "Shake Amount", min = 0, max = 180, value = 1, suffix = "'", callback = function(val) 
+        Judensense.Settings.Blatant.AntiLock.ShakeValue = val 
+    end}
+
+    SSAntiLock:AddDivider{text = "Target Aim Viewer"}
+
+    SSAntiLock:AddToggle{text = "Aim Viewer Enabled", callback = function(on) 
+        Judensense.Settings.Blatant.AntiLock.AimViewer.Enabled = on 
+    end}
+
+    SSAntiLock:AddColor{text = "Aim Viewer Color", default = {r = 255, g = 255, b = 255, a = 255}, callback = function(color)
+        Judensense.Settings.Blatant.AntiLock.AimViewer.Color = color
+    end}
+
+    SSAntiLock:AddSlider{text = "Aim Viewer Thickness", min = 1, max = 10, value = 1, suffix = "%", callback = function(val)
+        Judensense.Settings.Blatant.AntiLock.AimViewer.Thickness = val 
+    end}
+
+    local SCFrameSpeed = LCMovement:AddSection("Speed"); local SSCFrameSpeed = SCFrameSpeed:AddSubsec("Speed");
+
+    SSCFrameSpeed:AddToggle{text = "Enabled", callback = function(on) 
+        Judensense.Settings.Blatant.Movement.CFrameSpeed.Enabled = on 
+    end}:AddKeybind{sync = true};
+
+    SSCFrameSpeed:AddSlider{min = 1, max = 10, value = 2, float = 2, text="Speed", callback = function(val) 
+        Judensense.Settings.Blatant.Movement.CFrameSpeed.Speed = val 
+    end}
+
+    local SExploits = LCMiscs:AddSection("Exploits"); local SSExploits = SExploits:AddSubsec("Exploits");
+
+    SSExploits:AddToggle{text = "Anti RPG", callback = function(on) 
+        Judensense.Settings.Misc.Exploits.AntiRPG = on 
+    end}
+    
+    SSExploits:AddToggle{text = "No Recoil", callback = function(on) 
+        Judensense.Settings.Misc.Exploits.NoRecoil = on 
+    end}
+end)
+
+
+warn("Ui Took: " .. tostring(tick() - MainUiStart .. " seconds To Intialize"))
+warn("Execution Took: " .. tostring(tick() - MainStart .. " seconds"))
